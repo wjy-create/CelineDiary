@@ -143,16 +143,26 @@ function renderToday(){
   const hour=localNow().getHours(); const close=$('#close');
   if(hour>=18||Q.get('close')==='1'){
     close.hidden=false;
-    const to22=22*60-nowM; const budget=budgetLevel(ln);
-    $('#close-nums').innerHTML=[['今天深工',D.deep_hours_today+'h'],['工作',D.work_hours_today+'h'],['离 22:00',to22>0?Math.floor(to22/60)+'h'+pad(Math.round(to22%60))+'m':'已过 '+Math.round(-to22)+'m'],['昨晚',ln.total_min!=null?(ln.total_min/60).toFixed(1)+'h':'—'],['今晚预算',budget]]
+    const toClose=CLOSE_M-nowM; const budget=budgetLevel(ln);
+    $('#close-nums').innerHTML=[['今天深工',D.deep_hours_today+'h'],['工作',D.work_hours_today+'h'],['离 '+hhmm(CLOSE_M),toClose>0?Math.floor(toClose/60)+'h'+pad(Math.round(toClose%60))+'m':'已过 '+Math.round(-toClose)+'m'],['昨晚',ln.total_min!=null?(ln.total_min/60).toFixed(1)+'h':'—'],['今晚预算',budget]]
       .map(([l,n])=>'<div><div class="n">'+n+'</div><div class="l">'+l+'</div></div>').join('');
-    $('#close-nudge').textContent=budget==='低'?'今晚只做一件：手机放客厅，洗个热澡就躺。':'关机坡：① 想法丢进桶、热水澡 ② 纸质书或撸猫，不碰屏 ③ 灯调最暗，躺下。手机不进卧室。';
+    $('#close-nudge').textContent=closeNudge(budget,today);
   }else close.hidden=true;
 }
-function budgetLevel(ln){ /* 简版身体预算：昨晚睡够且躺得不晚 → 高；睡不足 6h 或 01:30 后躺 → 低；其余中。人群标准只定位不定性，这里只用她自己的铁律线。 */
+/* 收工线 / 躺平线：唤醒度 Protocols v1.3（2026-09-21 她定「底线的底线」）。时间轴刻度由 diary_snapshot().anchors 给，这里只管倒数与轻推。 */
+const CLOSE_M=23*60, BED_M=23*60+30;
+function hhmm(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
+/* 睡前轻推：练功房（09-21 退役）的药方词汇并入这里，纯文字不做工具。按日期轮换，同一天看到同一句。 */
+const NUDGE_TAIL=['停不下来：鼻子两吸、嘴一长呼，做三次。','还想看一眼：屏幕 22:45 已经灰了，明早它还在。','脑子还在转：把那件事说出来，说完就算交出去了。'];
+function closeNudge(budget,day){
+  if(budget==='低'||budget==='—')return'今晚只做一件：手机放回书桌，洗个热澡就躺。';
+  const n=Number(String(day).replace(/-/g,''))||0;
+  return hhmm(CLOSE_M)+' 收。① 手机放回书桌时说两分钟：没做完的、明天第一步 ② 热水澡 ③ 灯调暗，'+hhmm(BED_M)+' 躺下。'+NUDGE_TAIL[n%NUDGE_TAIL.length];
+}
+function budgetLevel(ln){ /* 简版身体预算＝昨晚的身体账，阈值取她 39 晚实测（08-12→09-20）：01:00 后躺平均只睡 6.24h（悬崖）；00:00–00:30 躺睡 7.56h（追平孕前 7.53h）。故意不跟目标躺平线挂钩——否则现阶段天天判低，完整睡前流程被藏起来。人群标准只定位不定性。 */
   if(!ln||ln.total_min==null)return'—';
-  const bt=ln.bed_time||'00:00'; const late=(bt>='01:30'&&bt<'12:00');
-  if(ln.total_min<360||late)return'低'; if(ln.total_min>=420&&(bt>='18:00'||bt<='00:45'))return'高'; return'中';
+  const bt=ln.bed_time||'00:00'; const late=(bt>='01:00'&&bt<'12:00');
+  if(ln.total_min<360||late)return'低'; if(ln.total_min>=420&&(bt>='18:00'||bt<='00:30'))return'高'; return'中';
 }
 
 /* ---------- 主线 ---------- */
