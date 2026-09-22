@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-look="sky">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4eee3">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Celine Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+/* Celine Diary v2 · 2026-09-21 · 视觉重做（样稿 design/2026-09-21_三个方向.html，她选「B 纸本为底，入夜换 A 深色」）。
+   数据与口径同 diary.html（v1 原样保留）；只读页面：无输入、无按钮墙、无总分、无待办。
+   09-21 她定「天色」：背景是此刻的天空，按南京当天真实日出日落插值（黎明→上午→正午→金色时刻→黄昏→蓝调→夜）；
+   上方纸本 / 夜航变量保留作底层默认，被 html[data-look=sky] 覆盖。22:45 后手机是灰度——层级靠明暗和字形，不靠颜色。
+   09-22 印刷感一轮（她看了 zaraintokyo.com 后定）：圆角 22→4 + 发丝线；首页大数字不进卡；强调词上朱红代替荧光笔；主线色降饱和；数字 Cormorant 300；
+   加一套自绘内联 SVG（规范：方形画布、墨线 1.5 圆头、只三种填充＝纸/墨/一处朱红；sky-dark 下墨纸互换）——首页日/月按真实日出日落走位，八条主线各一枚。 */
+:root{
+  --paper:#f4eee3;--ink:#231e19;--ink2:#6f655a;--ink3:#a69b8d;--accent:#b3342a;--accent-soft:rgba(179,52,42,.22);
+  --rule:rgba(90,110,140,.13);--margin:rgba(179,52,42,.35);--glow:none;--grain:0;
+  --num:"Fraunces",Georgia,serif;--num-style:normal;--num-weight:300;
+  --text:"LXGW WenKai Screen","Songti SC","STSong","Noto Serif SC",serif;
+  --c-work:#5f7fa6;--c-rel:#c0675e;--c-body:#5f9a7e;--c-self:#8a7fbf;--c-baby:#d49a4c;--c-invest:#6f94a8;--c-works:#b08a4f;--c-life:#b3a898;--c-rest:#cfc6b8;--c-hole:#b3342a;
+}
+html.night{
+  --paper:#130e0d;--ink:#e8dfd4;--ink2:#9d9186;--ink3:#5f554e;--accent:#c9a46a;--accent-soft:rgba(201,164,106,.22);
+  --rule:rgba(232,223,212,.045);--margin:rgba(201,164,106,.22);
+  --glow:radial-gradient(120% 900px at 50% -160px,#3b1715 0%,rgba(59,23,21,0) 70%);--grain:.07;
+  --num:"Cormorant Garamond",Georgia,serif;--num-style:italic;--num-weight:400;
+  --c-work:#6b89a8;--c-rel:#b8605a;--c-body:#6f9a86;--c-self:#8d86b8;--c-baby:#c9a46a;--c-invest:#7896a6;--c-works:#b39463;--c-life:#6c645c;--c-rest:#3a302b;--c-hole:#d06a52;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper)}
+body{margin:0;min-height:100vh;color:var(--ink);font:15.5px/30px var(--text);background:var(--glow) no-repeat,var(--paper);
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased;transition:background-color .6s}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px);background-size:100% 30px;background-position:0 14px}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain);mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.page{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:calc(30px + env(safe-area-inset-top)) 24px 20px 46px}
+.page:before{content:"";position:absolute;top:0;bottom:-2000px;left:30px;border-left:1px solid var(--margin)}
+.num{font-family:var(--num);font-style:var(--num-style);font-weight:var(--num-weight);font-variation-settings:"opsz" 144;font-variant-numeric:lining-nums tabular-nums}
+
+/* 头 */
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.date b{display:block;font-weight:400;font-size:30px;line-height:1.15;letter-spacing:.02em}
+.date span{color:var(--ink2);font-size:15px}
+.seal{flex:none;width:60px;height:60px;border:2px solid var(--accent);color:var(--accent);border-radius:6px;display:grid;place-items:center;text-align:center;line-height:1.05;transform:rotate(-6deg);font-size:15px;opacity:.9;margin-top:4px}
+.seal small{display:block;font:400 12px/1 var(--num);font-style:var(--num-style);margin-top:3px;letter-spacing:.02em}
+.warn{color:var(--accent);font-size:13px;line-height:22px;margin-top:6px}
+
+/* 收工块 */
+.close{margin-top:26px}
+.count{display:flex;align-items:baseline;gap:12px}
+.count .n{font-size:96px;line-height:.9;color:var(--accent);letter-spacing:-.02em}
+html:not(.night) .count .n{color:var(--ink)}
+.count .l{font-size:13px;color:var(--ink2);letter-spacing:.35em;writing-mode:vertical-rl;line-height:1.15}
+.lede{font-size:22px;line-height:1.55;margin:14px 0 0;letter-spacing:.02em}
+.lede .nb{white-space:nowrap}
+.lede u{text-decoration:none;background:linear-gradient(transparent 62%,var(--accent-soft) 62%)}
+.nudge{margin:14px 0 0;font-size:15.5px;line-height:30px}
+.nudge .tail{display:block;color:var(--accent)}
+
+/* 数字 */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);margin:24px 0 0;row-gap:6px}
+.figs .v{font-size:32px;line-height:1.1}
+.figs .v sub{font-size:13px;vertical-align:baseline;margin-left:2px;color:var(--ink2);font-style:normal}
+.figs .k{font-size:12.5px;color:var(--ink2);line-height:20px}
+
+/* 小节 */
+.sec{margin:34px 0 4px;font-size:14px;line-height:30px;color:var(--accent);letter-spacing:.3em}
+
+/* 今日条目 */
+.entry{display:grid;grid-template-columns:50px 1fr auto;align-items:baseline;line-height:30px;font-size:15px}
+.entry .t{font-size:14px;color:var(--ink2)}
+.entry .d{color:var(--ink3);font-size:12.5px;padding-left:8px}
+.entry .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;vertical-align:1px}
+.entry.plan{color:var(--ink3)}
+.entry.plan .dot{background:transparent!important;border:1px dashed var(--ink3)}
+.entry.mark{color:var(--accent)}.entry.mark .t{color:var(--accent)}
+.entry.now{color:var(--ink2);font-size:13px}.entry.now .t{color:var(--ink)}
+.entry.past{opacity:.55}
+.empty{color:var(--ink3);font-size:14px}
+
+/* 主线 */
+.eco{display:grid;grid-template-columns:repeat(3,1fr);margin:22px 0 0}
+.eco .v{font-size:30px;line-height:1.1}
+.eco .k{font-size:12.5px;color:var(--ink2);line-height:20px}
+.gene{margin-top:14px}
+.toc{display:flex;align-items:baseline;line-height:30px;font-size:17px}
+.toc .lead{flex:1;border-bottom:1.5px dotted var(--ink3);margin:0 8px;transform:translateY(-6px);opacity:.8}
+.toc .r{font-size:15px;color:var(--ink2)}
+.rh{display:grid;grid-template-columns:16px 1fr auto;align-items:baseline;line-height:30px;font-size:14.5px;padding-left:2px}
+.rh .mk{width:8px;height:8px;border-radius:50%;border:1.2px solid var(--ink3);display:inline-block;transform:translateY(-1px)}
+.rh.met .mk{background:var(--ink);border-color:var(--ink)}
+.rh.miss .mk{border-color:var(--accent);background:transparent}
+.rh.pend .mk{border-style:dashed}
+.rh.noread .mk,.rh.dark .mk{border-color:transparent;background:repeating-linear-gradient(45deg,var(--ink3) 0 1px,transparent 1px 3px)}
+.rh .nm{color:var(--ink)}
+.rh .cur{font-size:14px;color:var(--ink2);white-space:nowrap;padding-left:8px}
+.rh.miss .cur{color:var(--accent)}
+.rh.met .cur{color:var(--ink)}
+.rh .meta{grid-column:2/-1;color:var(--ink3);font-size:12px;line-height:18px;margin:-6px 0 6px}
+.ll{display:grid;grid-template-columns:16px 1fr auto;align-items:baseline;line-height:30px;font-size:14.5px;padding-left:2px}
+.ll .mk{font-size:12px;color:var(--ink3)}
+.ll .cur{font-size:14px;color:var(--ink2);padding-left:8px}
+.ll .bar{grid-column:2/-1;height:2px;background:var(--rule);margin:-8px 0 8px;position:relative}
+.ll .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.ll .meta{grid-column:2/-1;color:var(--ink3);font-size:12px;line-height:18px;margin:-6px 0 6px}
+
+/* 底 */
+.foot{margin-top:40px;color:var(--ink3);font-size:12px;line-height:20px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;gap:56px;
+  padding:10px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--paper) 62%,transparent)}
+nav button{border:0;background:none;padding:6px 2px;font:17px/1 var(--text);color:var(--ink3);letter-spacing:.3em;position:relative;cursor:pointer}
+nav button.on{color:var(--ink)}
+nav button.on:after{content:"";position:absolute;left:18%;right:28%;bottom:-2px;height:2px;background:var(--accent);border-radius:2px}
+.view{display:none}.view.on{display:block}
+
+/* ---- 今日色带（所有质感共用） ---- */
+.stripe{margin:24px 0 0}
+.stripe .track{position:relative}
+.stripe .bar{position:relative;height:12px;border-radius:6px;background:rgba(127,120,110,.14);overflow:hidden}
+.stripe .seg{position:absolute;top:0;bottom:0}
+.stripe .mark{position:absolute;top:-4px;bottom:-4px;border-left:1px dashed var(--accent)}
+.stripe .nowtick{position:absolute;top:-5px;bottom:-5px;width:2px;margin-left:-1px;background:var(--ink);border-radius:2px}
+.stripe .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--ink3);line-height:18px;margin-top:4px}
+
+/* ================= 天色（她 09-21 选定）：思源宋体细体 + Cormorant 300 数字（09-22 起，原 Bodoni）；背景是此刻的天空，按南京当天真实日出日落走 ================= */
+html[data-look=sky],
+html[data-look=sky].night{
+  --text:"Noto Serif SC","Songti SC",serif;--num:"Cormorant Garamond",Georgia,serif;--num-weight:300;--rule:transparent;--margin:transparent}
+html[data-look=sky] body{font-weight:300;letter-spacing:.04em}
+html[data-look=sky] .page{padding-left:26px;padding-right:26px}
+html[data-look=sky] .page:before{display:none}   /* 纸本的页边线在天色里不可见，但 bottom:-2000px 会在页面底下多出两屏空白，去掉 */
+html[data-look=sky] .date b{font-weight:300;font-size:32px;letter-spacing:.14em}
+html[data-look=sky] .date span{font-size:12.5px;letter-spacing:.3em}
+html[data-look=sky] .seal{transform:none;border-width:1px;border-radius:50%;width:62px;height:62px;font-size:14px}
+html[data-look=sky] .count .n{font-size:118px;letter-spacing:-.04em;font-variant-numeric:lining-nums tabular-nums}
+html[data-look=sky] .num{font-variant-numeric:lining-nums tabular-nums}
+html[data-look=sky] .figs .v,html[data-look=sky] .eco .v{font-size:36px}
+html[data-look=sky] .lede{font-size:19px;font-weight:400;letter-spacing:.08em;line-height:1.85}
+html[data-look=sky] .nudge{font-size:14px;line-height:2;letter-spacing:.05em}
+html[data-look=sky] .sec{font-size:11px;letter-spacing:.6em;margin-top:40px}
+html[data-look=sky] .figs .k,
+html[data-look=sky] .eco .k{font-size:11px;letter-spacing:.3em}
+html[data-look=sky] .entry{line-height:40px;font-size:14.5px}
+html[data-look=sky] .toc{font-size:17px;letter-spacing:.12em;line-height:42px;font-weight:400}
+html[data-look=sky] nav button{font-size:14px;letter-spacing:.5em}
+
+/* ---- 天色：背景是此刻的天空（清晨桃杏、正午天青、黄昏珊瑚、入夜靛紫），内容浮在毛玻璃上 ---- */
+html[data-look=sky],html[data-look=sky].night{
+  --paper:var(--sky-b,#f6efe3);--ink:#1f1c22;--ink2:#5d5663;--ink3:#8f8795;--accent:#c4432a;--accent-soft:rgba(196,67,42,.18);--glow:none;--grain:.04;--num-style:normal;
+  --glass:rgba(255,255,255,.3);--glass-line:rgba(31,28,34,.16);
+  --ill-ink:#1f1c22;--ill-fill:rgba(255,253,249,.92);--ill-accent:#c4432a;
+  /* 主线色：降饱和，往靛 / 抹茶 / 金 / 朱靠（Zara 的和风四色）；灰度下靠明暗分层 */
+  --c-work:#3f5a86;--c-rel:#c25a4a;--c-body:#5f8a68;--c-self:#7b6a9e;--c-baby:#c9963d;--c-invest:#4a7d8e;--c-works:#ad8a45;--c-life:#9a9088;--c-rest:#d9d1c3;--c-hole:#c4432a}
+html[data-look=sky].sky-dark{--ink:#fbf7f5;--ink2:rgba(255,250,248,.86);--ink3:rgba(255,250,248,.66);--accent:#ffc27a;--accent-soft:rgba(255,194,122,.24);--glass:rgba(255,255,255,.06);--glass-line:rgba(255,250,248,.2);
+  --ill-ink:#fbf7f5;--ill-fill:rgba(255,255,255,.08);--ill-accent:#ffc27a;--c-rest:#3a3560;--c-work:#7d95bd;--c-body:#86ad8f;--c-invest:#7fa9b8;--c-life:#8f8880}
+html[data-look=sky] body{background:linear-gradient(180deg,var(--sky-a,#cfe4f1) 0%,var(--sky-b,#f6efe3) 70%) fixed,var(--sky-b,#f6efe3);transition:background .8s}
+/* 印刷感：卡片＝发丝线细框、4px 圆角、几乎无阴影；首页 hero 不进卡，大数字直接落在天空上 */
+html[data-look=sky] .figs,html[data-look=sky] .stripe,html[data-look=sky] .list,html[data-look=sky] .gene{
+  background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(130%);backdrop-filter:blur(14px) saturate(130%);border:1px solid var(--glass-line);border-radius:4px;padding:16px 18px}
+html[data-look=sky] .hero{padding:6px 2px 0}
+html[data-look=sky] .figs,html[data-look=sky] .stripe{margin-top:22px}
+html[data-look=sky] .stripe{margin-top:-1px;border-top:0}   /* 数字卡与色带卡共用一条线，像表格 */
+html[data-look=sky] .list{padding:4px 18px}
+html[data-look=sky] .gene{margin-top:-1px;padding:10px 18px 10px;border-left:3px solid var(--g)}   /* 主线卡叠成一列格子 */
+html[data-look=sky] .sec+.gene{margin-top:12px}
+html[data-look=sky] .sec{margin-top:28px}
+html[data-look=sky] .toc .lead{border:0}
+html[data-look=sky] .lede u{background:none;color:var(--accent)}   /* 强调词上朱红（Zara 的 *Tokyo*），不用荧光笔 */
+html[data-look=sky] .count{align-items:center}
+html[data-look=sky] .count .l{align-self:center}
+html[data-look=sky] .seal{margin:0 4px 0 auto;width:56px;height:56px;font-size:13px;border-color:var(--accent);color:var(--accent);opacity:.85}
+html[data-look=sky] .hd{align-items:flex-end;margin-bottom:6px}
+html[data-look=sky] nav{background:linear-gradient(to top,var(--sky-b) 60%,transparent)}
+
+/* ---- 图鉴：同一支笔画的一套 ---- */
+.ill *{fill:none;stroke:var(--ill-ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.ill .f{fill:var(--ill-fill)}
+.ill .a{fill:var(--ill-accent);stroke:none}
+.ill .as{stroke:var(--ill-accent);stroke-width:2.2}
+.ill .dim{opacity:.55}
+.ill .dot{fill:var(--ill-ink);stroke:none}
+.celest{flex:none;width:116px;height:96px;overflow:visible;transition:transform .4s,filter .4s;animation:float 7s ease-in-out infinite;transform-origin:50% 90%}
+.celest:active{transform:translateY(-3px);filter:drop-shadow(0 8px 24px var(--accent-soft))}
+.celest .sun.low .f{fill:var(--ill-accent)}   /* 贴地平线时太阳是朱红的——旭日 / 落日 */
+.toc .ico{display:inline-flex;align-self:center;width:22px;height:22px;margin-right:12px;opacity:.78;transition:opacity .3s,transform .3s}
+.toc .ico svg{width:100%;height:100%}
+.gene:active .ico{opacity:1;transform:translateY(-2px)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.enter .ill [pathLength]{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.3s cubic-bezier(.4,0,.2,1) .15s forwards}   /* 首次进入：线条描出来 */
+@media (prefers-reduced-motion:reduce){.celest{animation:none}.enter .ill [pathLength]{animation:none;stroke-dashoffset:0}}
+
+/* 首次出现 */
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.enter>*{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+.enter>*:nth-child(2){animation-delay:.07s}.enter>*:nth-child(3){animation-delay:.14s}.enter>*:nth-child(4){animation-delay:.21s}
+.enter>*:nth-child(5){animation-delay:.28s}.enter>*:nth-child(6){animation-delay:.35s}.enter>*:nth-child(n+7){animation-delay:.42s}
+@media (prefers-reduced-motion:reduce){.enter>*{animation:none}}
+</style>
+<script>
+/* 主题按时段：20:00–06:00 夜航。?theme=day|night 可临时指定（只在本次打开生效）。 */
+(function(){var q=new URLSearchParams(location.search).get('theme');var h=new Date().getHours();
+ var night=q?q==='night':(h>=20||h<6);if(night){document.documentElement.classList.add('night');document.querySelector('meta[name=theme-color]').setAttribute('content','#130e0d')}})();
+</script>
+</head>
+<body>
+<div class="page">
+  <section id="v-today" class="view"></section>
+  <section id="v-main" class="view"></section>
+  <div class="foot" id="foot">读取中…</div>
+</div>
+<nav><button data-v="today">今天</button><button data-v="main">主线</button></nav>
+<script>
+/* ---------- 基础（口径与 diary.html 一致） ---------- */
+const Q=new URLSearchParams(location.search), TOKEN=Q.get('token')||'';
+const API='https://jddtovlvntdglfuezxdq.supabase.co/functions/v1/diary-panel';
+const CAL_COLOR={'工作':'--c-work','关系':'--c-rel','身心':'--c-body','育儿':'--c-baby','自我投资':'--c-self','生活娱乐':'--c-life','休息':'--c-rest','时间黑洞':'--c-hole','携程':'--c-life'};
+const PERIOD_CN={day:'今天',week:'本周',month:'本月',quarter:'本季',year:'今年'};
+const NIGHT_RHYTHMS=new Set([3,15]); /* 手机不进床、睡前日记：day 周期但读数是「昨晚」 */
+/* 收工线 / 躺平线：唤醒度 Protocols v1.3（2026-09-21 她定「底线的底线」）。时间轴刻度由 diary_snapshot().anchors 给。 */
+const CLOSE_M=23*60, BED_M=23*60+30;
+const NUDGE_TAIL=['停不下来：鼻子两吸、嘴一长呼，做三次。','还想看一眼：屏幕 22:45 已经灰了，明早它还在。','脑子还在转：把那件事说出来，说完就算交出去了。'];
+const WEEK='日一二三四五六';
+const CN_MONTH=['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+let D=null, entered={today:false,main:false};
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const hhmm=m=>pad(Math.floor(m/60)%24)+':'+pad(Math.round(m%60));
+function localNow(){return new Date()}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+/* 显示用清洗：去 emoji 与「| 12分钟」这类时长后缀；日历原文不动 */
+const RENAME={'语言':'Duolingo'};   /* 她 09-21：「语言」其实是 Duolingo（西语 / 粤语 / 日语都在上面学） */
+function clean(t){const s=String(t||'').replace(/\s*[|｜]\s*\d*\s*(小时)?\s*\d*\s*分钟?\s*$/,'').replace(/\s*[|｜]\s*$/,'')
+  .replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}️‍]/gu,'').replace(/\s{2,}/g,' ').trim();return RENAME[s]||s||'（无题）'}
+function cnDay(n){const a=['','一','二','三','四','五','六','七','八','九'];if(n<10)return a[n];if(n===10)return'十';if(n<20)return'十'+a[n-10];return a[Math.floor(n/10)]+'十'+a[n%10]}
+function cnSpan(min){min=Math.max(0,Math.round(min));const h=Math.floor(min/60),m=min%60;const H=['零','一','两','三','四','五','六','七','八','九','十','十一','十二'];
+  let s='';if(h)s+=(H[h]||h)+'小时';if(m){s+=(m<10&&h?'零':'')+cnDay(m)+'分'}else if(!h)s='不到一分钟';return s}
+
+/* ---------- 读取 ---------- */
+function paint(d,from){D=d;renderAll();foot(from)}
+function foot(from){
+  const hb=D&&D.heartbeats&&D.heartbeats.cal_mirror; let cal='日历未同步';
+  if(hb){const min=Math.round((Date.now()-new Date(hb))/60000);cal=min>15?'日历 '+min+' 分钟未同步':'日历 '+min+' 分钟前'}
+  $('#foot').textContent=(from==='cache'?'缓存 · ':'')+'更新于 '+new Date(D.generated_at).toTimeString().slice(0,5)+' · '+cal;
+}
+async function load(){
+  if(!TOKEN){$('#foot').textContent='缺 token：请从主屏图标打开';return}
+  try{const c=localStorage.getItem('diary.snap');if(c&&!D){paint(JSON.parse(c),'cache')}}catch(e){}
+  try{
+    const r=await fetch(API+'?token='+encodeURIComponent(TOKEN)+'&tab='+current(),{cache:'no-store'});
+    const d=await r.json(); if(!d.ok)throw new Error(d.error||r.status);
+    try{localStorage.setItem('diary.snap',JSON.stringify(d))}catch(e){}
+    paint(d,'net');
+  }catch(e){$('#foot').textContent=(D?'用缓存 · ':'')+'读取失败：'+e.message}
+}
+
+/* ---------- 今天 ---------- */
+function renderToday(){
+  const today=D.today, base=new Date(today+'T00:00:00+08:00');
+  const [yy,mo,dd]=today.split('-').map(Number);
+  const wd=WEEK[new Date(today+'T12:00:00+08:00').getDay()];
+  const now=localNow(), nowM=(now-base)/60000, hour=now.getHours();
+  const ln=D.last_night||{}, b=D.body_today||{};
+  const evening=hour>=18||hour<4||Q.get('close')==='1';   /* 过了午夜到 04:00 仍算「今晚」（她实测最晚躺下 03:05）；04:00 后是新的一天 */
+  const eveM=nowM<4*60?nowM+1440:nowM;
+  const budget=budgetLevel(ln);
+  atmosphere(nowM);
+  let h='<div class="hero">';
+  h+=`<div class="hd"><div class="date"><b>${CN_MONTH[mo-1]}月${cnDay(dd)}日</b><span>星期${wd}${evening?' · 晚':''}</span></div>${celestSVG(nowM)}</div>`;
+  if(isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
+  if(evening){
+    const left=CLOSE_M-eveM;
+    const big=left>0?`${Math.floor(left/60)}:${pad(Math.floor(left%60))}`:`+${Math.floor(-left/60)?Math.floor(-left/60)+':'+pad(Math.floor(-left%60)):Math.floor(-left)+'′'}`;
+    const lede=left>0?`还有<u>${cnSpan(left)}</u>，<span class="nb">今天就收。</span>`:(eveM<BED_M?`已经过了收工线<u>${cnSpan(-left)}</u>。现在放下，${hhmm(BED_M)} 躺下。`:`过了躺下的时间<u>${cnSpan(eveM-BED_M)}</u>。什么都不用做完，去躺下。`);
+    h+=`<div class="close"><div class="count"><div class="n num">${big}</div><div class="l">${left>0?'离收工':'已过收工'}</div><div class="seal">收<small>${hhmm(CLOSE_M)}</small></div></div><p class="lede">${lede}</p>${nudgeHTML(budget,today)}</div>`;
+  }
+  h+='</div>';
+  const figs=[];
+  if(ln.total_min!=null)figs.push([(ln.total_min/60).toFixed(1),'h','昨晚睡了']);
+  figs.push([String(D.deep_hours_today??0),'h','今天深工']);
+  if(evening)figs.push([budget,'','今晚预算']);
+  else{let babyMin=0;for(const e of D.today_events||[]){if(e.all_day||e.recurring||e.calendar!=='育儿')continue;const s=new Date(e.start),en=e.end?new Date(e.end):new Date(+s+15*60000);babyMin+=Math.max(0,(en-s)/60000)}
+       figs.push([String(Math.round(babyMin)),'分','陪悠悠'])}
+  if(b.steps!=null&&!evening)figs.push([b.steps.toLocaleString(),'','步数']);
+  h+=`<div class="figs">${figs.slice(0,3).map(([v,u,k])=>`<div><div class="v num">${esc(v)}${u?`<sub>${u}</sub>`:''}</div><div class="k">${esc(k)}</div></div>`).join('')}</div>`;
+  h+=stripeHTML(base,nowM);
+  h+=`<div class="sec">今 日</div>`;
+  h+=`<div class="list">${entriesHTML(base,nowM)}</div>`;
+  const el=$('#v-today'); el.innerHTML=h; enter(el,'today');
+}
+function nudgeHTML(budget,day){
+  if(budget==='低'||budget==='—')return`<p class="nudge">今晚只做一件：手机放回书桌，洗个热澡就躺。</p>`;
+  const n=Number(String(day).replace(/-/g,''))||0;
+  return`<p class="nudge">手机放回书桌时，说两分钟：没做完的，明天第一步。热水澡，灯调暗，${hhmm(BED_M)} 躺下。<span class="tail">${NUDGE_TAIL[n%NUDGE_TAIL.length]}</span></p>`;
+}
+function entriesHTML(base,nowM){
+  const rows=[];
+  for(const e of D.today_events||[]){
+    if(e.all_day)continue;
+    const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15, dur=Math.max(en-s,0);
+    const sleep=e.calendar==='休息'&&/睡/.test(e.title||'');
+    let label=clean(e.title), t=s, dtxt=fmtDur(dur);
+    if(sleep&&s<12*60){label='醒来';t=en;dtxt='睡了 '+fmtDur(dur)}   /* 昨晚的觉：记醒来那一刻 */
+    else if(sleep&&s>nowM)continue;
+    const cls=e.recurring?'plan':(en<nowM-180?'past':'');
+    rows.push({t,html:`<div class="entry ${cls}"><span class="t num">${hhmm(Math.max(t,0))}</span><span><i class="dot" style="background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>${esc(label)}${e.recurring?'（计划）':''}</span><span class="d">${dtxt}</span></div>`});
+  }
+  const anchors=(D.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);return{t:hh*60+mm,label:a.label}});
+  for(const a of anchors){if(a.t<nowM-30&&a.label==='健身')continue;
+    rows.push({t:a.t+.1,html:`<div class="entry mark"><span class="t num">${hhmm(a.t)}</span><span>${esc(a.label)}</span><span></span></div>`})}
+  if(nowM>0&&nowM<26*60)rows.push({t:nowM+.2,html:`<div class="entry now"><span class="t num">${hhmm(nowM)}</span><span>—— 现在 ——</span><span></span></div>`});
+  if(!rows.length)return`<div class="empty">今天的日历还是空的。</div>`;
+  return rows.sort((a,b)=>a.t-b.t).map(r=>r.html).join('');
+}
+function fmtDur(m){if(m<15)return'';if(m<60)return Math.round(m)+' 分';const h=Math.round(m/6)/10;return(Number.isInteger(h)?h:h.toFixed(1))+' 小时'}
+function isStale(d){try{return d.today!==new Date(Date.now()+8*3600e3).toISOString().slice(0,10)}catch(e){return false}}
+function budgetLevel(ln){ /* 身体预算＝昨晚的身体账，阈值取她 39 晚实测（08-12→09-20）：01:00 后躺平均只睡 6.24h（悬崖）；00:00–00:30 躺睡 7.56h（追平孕前）。故意不跟目标躺平线挂钩。 */
+  if(!ln||ln.total_min==null)return'—';
+  const bt=ln.bed_time||'00:00'; const late=(bt>='01:00'&&bt<'12:00');
+  if(ln.total_min<360||late)return'低'; if(ln.total_min>=420&&(bt>='18:00'||bt<='00:30'))return'高'; return'中';
+}
+
+/* ---------- 主线 ---------- */
+function classify(r){
+  let cls='pend', cur='';
+  if(r.status==='dark'||r.status==='error'){cls='dark';cur=r.status==='dark'?'暗':'没读到'}
+  else if(r.status==='noread'){cls='noread';cur='没读到'}
+  else{
+    const v=r.current==null?0:Number(r.current), tgt=Number(r.target), isNight=NIGHT_RHYTHMS.has(r.id);
+    if(r.period==='day'&&!isNight&&r.current!=null&&!r.met&&r.direction==='min')cls='pend'; /* 今天还没过完，不判红 */
+    else if(r.met===true)cls='met'; else if(r.met===false)cls='miss'; else cls='pend';
+    if(isNight)cur=(r.current==null?'昨晚没读到':(v>=1?'昨晚 ✓':'昨晚 ✗'));
+    else if(r.direction==='max')cur=fmtN(v)+' / '+fmtN(tgt)+(r.unit?' '+r.unit:'');
+    else if(tgt===1&&r.period!=='day')cur=v>=1?'✓':'0 / 1';
+    else cur=fmtN(v)+' / '+fmtN(tgt)+(r.unit&&r.unit!=='次'?' '+r.unit:'');
+  }
+  return{cls,cur};
+}
+function fmtN(v){v=Number(v);return Math.abs(v)>=1000?v.toLocaleString():String(Math.round(v*10)/10)}
+function renderMain(){
+  const R=D.rhythms||[], L=D.longlines||[];
+  const eco={E:[0,0],C:[0,0],O:[0,0]};
+  for(const r of R){if(!r.eco_tag||r.met==null||!eco[r.eco_tag])continue;eco[r.eco_tag][1]++;if(r.met)eco[r.eco_tag][0]++}
+  const [yy,mo,dd]=D.today.split('-').map(Number);
+  let h=`<div class="hero"><div class="hd"><div class="date"><b>主线</b><span>${CN_MONTH[mo-1]}月${cnDay(dd)}日 · 八条线，哪条该拿起来</span></div></div>`;
+  if(isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
+  h+=`<div class="eco">${[['E','能量'],['C','秩序'],['O','开放']].map(([k,cn])=>`<div><div class="v num">${eco[k][1]?eco[k][0]+'/'+eco[k][1]:'—'}</div><div class="k">${cn}</div></div>`).join('')}</div></div>`;
+  h+=`<div class="sec">目 录</div>`;
+  for(const g of D.genes||[]){
+    const rs=R.filter(r=>r.gene_id===g.id), ls=L.filter(l=>l.gene_id===g.id);
+    const judged=rs.filter(r=>r.met!=null);
+    let gh=`<div class="gene" style="--g:var(${GENE_COLOR[g.id]||'--c-life'})"><div class="toc"><span class="ico ill">${GENE_ICON[g.id]||''}</span><span>${esc(g.name)}</span><span class="lead"></span><span class="r num">${judged.length?rs.filter(r=>r.met).length+' / '+rs.length:'—'}</span></div>`;
+    if(!rs.length&&!ls.length)gh+=`<div class="empty">还没有节律。</div>`;
+    for(const r of rs){
+      const {cls,cur}=classify(r), meta=[];
+      if(r.period==='day'&&!NIGHT_RHYTHMS.has(r.id))meta.push('今天');else meta.push(PERIOD_CN[r.period]||r.period);
+      if(r.days_since!=null&&r.period!=='quarter'&&r.period!=='month')meta.push('距上次 '+r.days_since+' 天');
+      if(r.streak)meta.push('连续 '+r.streak+(r.period==='day'?' 天':r.period==='week'?' 周':' 期'));
+      if(r.reason)meta.push(r.reason);
+      gh+=`<div class="rh ${cls}"><span><i class="mk"></i></span><span class="nm">${esc(r.name)}</span><span class="cur num">${esc(cur)}</span><div class="meta">${esc(meta.join(' · '))}</div></div>`;
+    }
+    for(const l of ls){
+      let cur='', extra='';
+      if(l.status==='manual'){cur='';extra=`<div class="meta">出现即完成 · 手工登记</div>`}
+      else if(l.status==='noread'||l.status==='error'){cur='没读到';extra=l.reason?`<div class="meta">${esc(l.reason)}</div>`:''}
+      else{
+        const pct=l.pct==null?null:Math.max(0,Math.min(100,Number(l.pct)));
+        cur=pct!=null?pct+'%':(l.current!=null?fmtN(l.current)+(l.unit||''):'');
+        const m=[];if(l.current!=null&&pct!=null)m.push('现在 '+fmtN(l.current)+(l.unit||''));if(l.end!=null)m.push('目标 '+fmtN(l.end)+(l.unit||''));if(l.note)m.push(l.note);
+        extra=(pct!=null?`<div class="bar"><i style="width:${pct}%"></i></div>`:'')+(m.length?`<div class="meta">${esc(m.join(' · '))}</div>`:'');
+      }
+      gh+=`<div class="ll"><span class="mk">—</span><span>${esc(l.name)}</span><span class="cur num">${esc(cur)}</span>${extra}</div>`;
+    }
+    if(g.id==='self'&&D.friction_open!=null)gh+=`<div class="rh pend"><span><i class="mk"></i></span><span class="nm">拧巴登记 open</span><span class="cur num">${D.friction_open}</span></div>`;
+    h+=gh+`</div>`;
+  }
+  const el=$('#v-main'); el.innerHTML=h; enter(el,'main');
+}
+function enter(el,k){if(entered[k])return;entered[k]=true;el.classList.add('enter');setTimeout(()=>el.classList.remove('enter'),1400)}
+
+const GENE_COLOR={work:'--c-work',family_rel:'--c-rel',body:'--c-body',self:'--c-self',parenting:'--c-baby',invest:'--c-invest',works:'--c-works',life:'--c-life'};
+
+/* ---------- 图鉴（09-22）：一支笔画的一套。画布 48×48，墨线 1.5 圆头，填充只有纸 / 墨 / 一处朱红（.a / .as）。 ---------- */
+const I=(body)=>`<svg viewBox="0 0 48 48" aria-hidden="true">${body}</svg>`;
+const GENE_ICON={
+  work:I(`<path class="f" pathLength="1" d="M13 22 A11 9 0 0 1 35 22 Z"/><path pathLength="1" d="M24 22 V37"/><path pathLength="1" d="M14 41 Q24 36 34 41"/><circle class="a" cx="24" cy="26.5" r="2.2"/>`),                    /* 台灯，灯泡红 */
+  family_rel:I(`<circle class="f" pathLength="1" cx="17" cy="18" r="5"/><path pathLength="1" d="M7 39 Q7 27 17 27 Q22 27 24.5 30.5"/><circle class="f" pathLength="1" cx="31" cy="16" r="5"/><path pathLength="1" d="M23.5 39 Q23.5 25 31 25 Q41 25 41 39"/><path class="as" pathLength="1" d="M27 25.5 Q31 23 35 25.5"/>`),   /* 两个人，围巾红 */
+  body:I(`<path class="f" pathLength="1" d="M11 37 C11 21 23 11 38 11 C38 27 27 39 11 37Z"/><path pathLength="1" d="M11 37 C19 29 27 21 36 13"/><path pathLength="1" d="M11 37 L8 41"/><circle class="a" cx="29" cy="25" r="1.9"/>`),   /* 叶子，露珠红 */
+  self:I(`<path class="f" pathLength="1" d="M8 14 Q16 11 24 15 V38 Q16 34 8 37Z"/><path class="f" pathLength="1" d="M40 14 Q32 11 24 15 V38 Q32 34 40 37Z"/><path class="dim" pathLength="1" d="M12 21 Q17 19 20.5 21 M12 26 Q17 24 20.5 26 M12 31 Q17 29 20.5 31"/><path class="a" d="M30.5 13 V25 L33.5 22.5 L36.5 25 V13.6 Q33.5 12.6 30.5 13Z"/>`),   /* 翻开的书，书签红 */
+  parenting:I(`<path pathLength="1" d="M7 42 Q11 40 15 42 T23 42 T31 42 T39 42"/><path class="f" pathLength="1" d="M13 30 Q13 22 22 22 H30 Q40 22 38 32 Q36 38 25 38 Q13 38 13 30Z"/><path pathLength="1" d="M22 28 Q28 26 32 30"/><circle class="f" pathLength="1" cx="16" cy="18" r="6"/><circle class="dot" cx="15" cy="17" r=".9"/><path class="a" d="M10.2 18.5 L4.5 20.5 L10.2 22Z"/>`),   /* 小鸭，嘴红 */
+  invest:I(`<circle class="f" pathLength="1" cx="24" cy="27" r="13"/><rect pathLength="1" x="19.5" y="22.5" width="9" height="9"/><path class="as" pathLength="1" d="M24 14 C20.5 9.5 22 5.5 24 7.5 C26 5.5 27.5 9.5 24 14"/>`),   /* 铜钱，红绳结 */
+  works:I(`<path pathLength="1" d="M11 41 H37"/><path class="f" pathLength="1" d="M19 41 L21 19 H27 L29 41Z"/><path class="f" pathLength="1" d="M19.5 19 H28.5 V13.5 H19.5Z"/><path pathLength="1" d="M17.5 13.5 H30.5 M20 13.5 L24 8.5 L28 13.5"/><path class="dim" pathLength="1" d="M20.7 27 H27.3 M20.1 34 H27.9"/><path class="dim" pathLength="1" d="M31.5 14.5 L41 11.5 M31.5 18 L41 20.5"/><circle class="a" cx="24" cy="16.3" r="1.9"/>`),   /* 灯塔，灯红 */
+  life:I(`<path class="f" pathLength="1" d="M11 20 H31 V30 Q31 37.5 21 37.5 Q11 37.5 11 30Z"/><path pathLength="1" d="M31 23.5 Q38.5 23 38 28 Q37.5 32 31 31.5"/><path pathLength="1" d="M8 41.5 H34"/><path class="dim" pathLength="1" d="M17 15.5 Q15 12.5 17 9.5 M24 15.5 Q22 12.5 24 9.5"/><circle class="a" cx="21" cy="28" r="1.9"/>`)   /* 一杯茶，杯身一点红 */
+};
+/* 首页日 / 月：太阳在日出→日落之间画一道弧，月亮在日落→次日日出；贴地平线时太阳是朱红的。画布 120×96，地平线 y=84。 */
+function celestSVG(nowM){
+  const {rise:r,set:st}=sunTimes(D.today), m=((nowM%1440)+1440)%1440, H=84;
+  const day=m>=r&&m<=st, f=day?(m-r)/(st-r):((m>st?m:m+1440)-st)/((r+1440)-st), alt=Math.sin(Math.PI*Math.max(0,Math.min(1,f)));
+  const y=Math.round((H-alt*62)*10)/10, low=day&&alt<.28;
+  let body;
+  if(day){
+    const rays=[0,45,90,135,180,225,270,315].map(a=>{const c=Math.cos(a*Math.PI/180),s=Math.sin(a*Math.PI/180);return`<path pathLength="1" d="M${(c*18).toFixed(1)} ${(s*18).toFixed(1)} L${(c*23).toFixed(1)} ${(s*23).toFixed(1)}"/>`}).join('');
+    body=`<g class="sun${low?' low':''}" transform="translate(60 ${y})"><circle class="f" pathLength="1" r="13"/>${rays}</g>`+
+      (alt>.35?`<path class="f dim" pathLength="1" d="M14 46 Q14 39 21 39.5 Q23 33 31 34.5 Q38 33 38 40 Q44 40 42 46Z"/>`:'');
+  }else{
+    body=`<g class="moon" transform="translate(60 ${y})"><path class="f" pathLength="1" d="M2 -13 A13 13 0 1 0 2 13 A10 10 0 1 1 2 -13Z"/><circle class="a" cx="-22" cy="-9" r="1.9"/></g>`+
+      `<path class="dim" pathLength="1" d="M22 22 v4 m-2 -2 h4 M98 34 v4 m-2 -2 h4 M84 12 v3 m-1.5 -1.5 h3"/>`;
+  }
+  return`<svg class="celest ill" viewBox="0 0 120 96" aria-hidden="true"><defs><clipPath id="skyclip"><rect x="0" y="0" width="120" height="${H}"/></clipPath></defs>`+
+    `<g clip-path="url(#skyclip)">${body}</g>`+
+    `<path pathLength="1" d="M6 ${H} H114"/><path class="dim" pathLength="1" d="M58 ${H} Q80 72 108 ${H}"/><path pathLength="1" d="M17 ${H} L16 79.5 M21.5 ${H} L22 78.5 M26 ${H} L27.5 80 M95 ${H} L96.5 79.5"/></svg>`;
+}
+/* 今日色带：05:00→次日 02:00，每件事按日历分类上色——一天的形状 */
+function stripeHTML(base,nowM){
+  const S=5*60,E=26*60,X=m=>Math.max(0,Math.min(100,(m-S)/(E-S)*100));
+  let seg='';
+  for(const e of D.today_events||[]){
+    if(e.all_day||e.recurring)continue;
+    const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15;
+    if(en<=S||s>=E)continue;
+    const a=X(s), w=Math.max(X(en)-a,.6);
+    seg+=`<i class="seg" style="left:${a}%;width:${w}%;background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>`;
+  }
+  const marks=(D.anchors||[]).filter(a=>a.label!=='健身').map(a=>{const[hh,mm]=a.t.split(':').map(Number);return`<i class="mark" style="left:${X(hh*60+mm)}%"></i>`}).join('');
+  const now=nowM>S&&nowM<E?`<i class="nowtick" style="left:${X(nowM)}%"></i>`:'';
+  return`<div class="stripe"><div class="track"><div class="bar">${seg}</div>${marks}${now}</div><div class="ticks num"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span><span>01</span></div></div>`;
+}
+/* 天色：按南京（她现在的基地；回上海后改 LAT/LON，差约十分钟）当天真实日出日落，把天空关键帧钉在太阳上 */
+const LAT=32.06, LON=118.80;
+function sunTimes(dateStr){ /* NOAA 简化算法，返回当地（UTC+8）分钟；误差 ±2 分钟 */
+  const d=new Date(dateStr+'T12:00:00+08:00'), N=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5), rad=Math.PI/180, lh=LON/15;
+  const one=rise=>{const t=N+((rise?6:18)-lh)/24, M=.9856*t-3.289;
+    let L=(M+1.916*Math.sin(M*rad)+.020*Math.sin(2*M*rad)+282.634+720)%360;
+    let RA=(Math.atan(.91764*Math.tan(L*rad))/rad+720)%360; RA=(RA+Math.floor(L/90)*90-Math.floor(RA/90)*90)/15;
+    const sd=.39782*Math.sin(L*rad), cd=Math.cos(Math.asin(sd)), cosH=(Math.cos(90.833*rad)-sd*Math.sin(LAT*rad))/(cd*Math.cos(LAT*rad));
+    const H=(rise?360-Math.acos(cosH)/rad:Math.acos(cosH)/rad)/15, T=H+RA-.06571*t-6.622;
+    return ((((T-lh)%24)+24)%24+8)%24*60};
+  return{rise:one(true),set:one(false)};
+}
+function skyFrames(dateStr){
+  const {rise:r,set:st}=sunTimes(dateStr), noon=(r+st)/2;
+  return[[0,'#0c0d20','#1b1737',1],[r-100,'#141638','#2a2350',1],[r-35,'#3a3f7a','#a3698a',1],[r+5,'#8d97cb','#f0a78c',1],[r+35,'#b3c3e2','#f6c7a8',0],[r+90,'#bcd6ea','#f7e3cf',0],
+    [noon,'#a9cfea','#f5ece0',0],[st-110,'#d9d3c4','#f0cfa4',0],[st-35,'#f2b27e','#d98a8a',0],[st+10,'#8a5f93','#ef8f6c',1],[st+45,'#3b3570','#8a4f75',1],
+    [st+110,'#191a42','#2c2250',1],[1440,'#0c0d20','#1b1737',1]].sort((a,b)=>a[0]-b[0]);
+}
+function mix(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function atmosphere(nowM){
+  const SKY=skyFrames(D.today);
+  const m=((Math.round(nowM)%1440)+1440)%1440; let i=0; while(i<SKY.length-2&&SKY[i+1][0]<=m)i++;
+  const [m0,a0,b0,d0]=SKY[i],[m1,a1,b1,d1]=SKY[i+1], t=m1>m0?(m-m0)/(m1-m0):0;
+  const r=document.documentElement.style;
+  r.setProperty('--sky-a',mix(a0,a1,t)); r.setProperty('--sky-b',mix(b0,b1,t));
+  document.documentElement.classList.toggle('sky-dark',(t<.5?d0:d1)===1);
+  const tc=document.querySelector('meta[name=theme-color]'); if(tc)tc.setAttribute('content',mix(a0,a1,t));
+}
+function renderAll(){if(!D)return;renderToday();renderMain()}
+
+/* ---------- tab：按时段落地（18 点前主线，18 点后今天），当次打开内可手动切换 ---------- */
+function byTime(){const h=localNow().getHours();return h>=18||h<4?'today':'main'}
+function current(){const b=document.querySelector('nav button.on');return b?b.dataset.v:byTime()}
+function show(v){document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+show(byTime());
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();return}
+  if(Date.now()-hiddenAt>10*60e3){   /* 离开超过 10 分钟再回来：按当前时段重新落地、重新判主题 */
+    const h=localNow().getHours(), q=Q.get('theme');
+    document.documentElement.classList.toggle('night',q?q==='night':(h>=20||h<6));
+    show(byTime());
+  }
+  load();
+});
+setInterval(()=>{if(D&&!document.hidden)renderAll()},60e3);   /* 页面开着时每分钟重画：天色与倒数跟着走 */
+load();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>
