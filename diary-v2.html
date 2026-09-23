@@ -113,6 +113,22 @@ html:not(.night) .count .n{color:var(--ink)}
 .ll .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
 .ll .meta{grid-column:2/-1;color:var(--ink3);font-size:12px;line-height:18px;margin:-6px 0 6px}
 
+/* 本周（09-22 第二批） */
+.figs .p{font-size:11px;line-height:18px;color:var(--ink3);letter-spacing:.06em}
+#v-week .figs .k{letter-spacing:.12em;min-height:40px}   /* 三个标签不等长，给两行的位置，下面的「上周」才对得齐 */
+.wrow{display:grid;grid-template-columns:1fr auto 82px;align-items:baseline;line-height:30px;font-size:14.5px}
+.wrow .v{color:var(--ink);font-size:14.5px;padding-left:10px;white-space:nowrap}
+.wrow .dd{font-size:12.5px;color:var(--ink3);text-align:right;padding-left:10px;white-space:nowrap}
+.wrow .dd.up{color:var(--c-work)}
+.wrow .dd.dn{color:var(--accent)}
+.note{color:var(--ink3);font-size:12px;line-height:20px;margin:4px 0 2px}
+.vd{font-size:14.5px;line-height:28px;margin:6px 0}
+.vd .ev{color:var(--ink3);font-size:12px;line-height:18px}
+.vd .st{display:inline-block;margin-left:8px;padding:0 6px;line-height:18px;vertical-align:2px;
+  font-size:11px;letter-spacing:.2em;border:1px solid var(--ink3);border-radius:3px;color:var(--ink3)}
+.vd .st.open{border-color:var(--accent);color:var(--accent)}
+.vd .st.applied,.vd .st.accepted{border-color:var(--ink);color:var(--ink)}
+
 /* 底 */
 .foot{margin-top:40px;color:var(--ink3);font-size:12px;line-height:20px}
 nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;gap:56px;
@@ -216,9 +232,10 @@ html[data-look=sky] nav{background:linear-gradient(to top,var(--sky-b) 60%,trans
 <div class="page">
   <section id="v-today" class="view"></section>
   <section id="v-main" class="view"></section>
+  <section id="v-week" class="view"></section>
   <div class="foot" id="foot">读取中…</div>
 </div>
-<nav><button data-v="today">今天</button><button data-v="main">主线</button></nav>
+<nav><button data-v="today">今天</button><button data-v="main">主线</button><button data-v="week">本周</button></nav>
 <script>
 /* ---------- 基础（口径与 diary.html 一致） ---------- */
 const Q=new URLSearchParams(location.search), TOKEN=Q.get('token')||'';
@@ -231,7 +248,7 @@ const CLOSE_M=23*60, BED_M=23*60+30;
 const NUDGE_TAIL=['停不下来：鼻子两吸、嘴一长呼，做三次。','还想看一眼：屏幕 22:45 已经灰了，明早它还在。','脑子还在转：把那件事说出来，说完就算交出去了。'];
 const WEEK='日一二三四五六';
 const CN_MONTH=['一','二','三','四','五','六','七','八','九','十','十一','十二'];
-let D=null, entered={today:false,main:false};
+let D=null, entered={today:false,main:false,week:false};
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,'0');
 const hhmm=m=>pad(Math.floor(m/60)%24)+':'+pad(Math.round(m%60));
@@ -258,6 +275,7 @@ async function load(){
   try{
     const r=await fetch(API+'?token='+encodeURIComponent(TOKEN)+'&tab='+current(),{cache:'no-store'});
     const d=await r.json(); if(!d.ok)throw new Error(d.error||r.status);
+    if(D&&D.weekly&&!d.weekly)d.weekly=D.weekly;   /* 出口只在 ?tab=week 带 weekly；别的 tab 回来时保住上一次的周数，本周页才不会闪回空 */
     try{localStorage.setItem('diary.snap',JSON.stringify(d))}catch(e){}
     paint(d,'net');
   }catch(e){$('#foot').textContent=(D?'用缓存 · ':'')+'读取失败：'+e.message}
@@ -462,13 +480,95 @@ function atmosphere(nowM){
   document.documentElement.classList.toggle('sky-dark',(t<.5?d0:d1)===1);
   const tc=document.querySelector('meta[name=theme-color]'); if(tc)tc.setAttribute('content',mix(a0,a1,t));
 }
-function renderAll(){if(!D)return;renderToday();renderMain()}
+/* ---------- 本周（09-22 第二批：数层 energy.weekly_review，出口 ?tab=week） ---------- */
+const VD_ST={open:'待批',accepted:'批',rejected:'否',applied:'已改',expired:'过期'};
+function mdCN(s){if(!s)return'';const[y,m,d]=String(s).split('-').map(Number);return CN_MONTH[m-1]+'月'+cnDay(d)+'日'}
+function clockRel(m){if(m==null)return'—';m=((Math.round(Number(m))%1440)+1440)%1440;return pad(Math.floor(m/60))+':'+pad(m%60)}
+function delta(x){const v=Number(x);if(!isFinite(v))return{s:'',cls:''};
+  return{s:(v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(1),cls:v>0?'up':v<0?'dn':''}}
+function wkRhythm(r){   /* 达标墨色、未达标朱红、没读到留白——不显示 0 */
+  if(!r||r.status==='dark'||r.status==='error'||r.status==='noread')return{cls:'noread',cur:''};
+  const cls=r.met===true?'met':r.met===false?'miss':'pend';
+  const cur=r.period==='day'?(r.current==null?'':r.current+' / '+r.days_read+' 天')
+    :fmtN(r.current)+' / '+fmtN(r.target)+(r.unit&&r.unit!=='次'?' '+r.unit:'');
+  return{cls,cur};
+}
+function renderWeek(){
+  const el=$('#v-week'); if(!el)return;
+  const W=D&&D.weekly;
+  if(!W){el.innerHTML=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>这一周的数还没取到</span></div></div></div><div class="list"><div class="empty">正在读这一周…</div></div>`;return}
+  const pr=W.prior||{}, th=W.three||{}, pth=pr.three||{}, sl=W.sleep||{}, psl=pr.sleep||{};
+  const n=sl.n||7, pn=psl.n||7, dd=W.days||7;
+  let h=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>${mdCN(W.week_start)} – ${mdCN(W.week_end)}</span></div></div></div>`;
+  const big=[['≤ 00:00',th.n_le_0000,n,pth.n_le_0000,pn],
+             ['过 01:00',th.n_gt_0100,n,pth.n_gt_0100,pn],
+             ['23 点后做项目',th.n_project_after_23,dd,pth.n_project_after_23,7]];
+  h+=`<div class="figs">${big.map(([k,v,d,pv,pd])=>`<div><div class="v num">${v==null?'—':v}<sub>/${d}</sub></div><div class="k">${esc(k)}</div><div class="p num">上周 ${pv==null?'—':pv+' / '+pd}</div></div>`).join('')}</div>`;
+  h+=`<div class="note">三个跟踪数（v1.3 起）：躺平 ≤00:00 的夜 / 过 01:00 的夜 / 23 点后仍在做项目的夜</div>`;
+
+  h+=`<div class="sec">时 间 去 哪 了</div><div class="list">`;
+  if(Array.isArray(W.per_cal)&&W.per_cal.length){
+    for(const c of W.per_cal){const d=delta(Number(c.h_day)-Number(c.prior4_h_day));
+      h+=`<div class="wrow"><span>${esc(c.calendar)}</span><span class="v num">${Number(c.h_day).toFixed(1)} h/天</span><span class="dd num ${d.cls}">${d.s}</span></div>`}
+    h+=`<div class="note">右列＝与前四周日均之差 · 覆盖 ${esc(W.coverage_h_day)}h/天 · ${esc(W.events)} 条事件</div>`;
+  }else h+=`<div class="empty">没读到：${esc((W.per_cal&&W.per_cal.reason)||'时间段取数失败')}</div>`;
+  h+=`</div>`;
+
+  const la=W.late||{}, ph=W.phone||{};
+  h+=`<div class="sec">深 夜</div><div class="list">`;
+  if(la.status==='ok'){
+    const by=la.by_cal||{}, top=Object.keys(by).sort((a,b)=>by[b]-by[a]).slice(0,3).map(k=>k+' '+by[k]+' 分').join(' · ');
+    h+=`<div class="wrow"><span>23 点后（非睡眠）</span><span class="v num">${esc(la.total_min_day)} 分/天</span><span class="dd"></span></div>`;
+    h+=`<div class="note">前三：${esc(top||'—')}${la.shop_events?' · 深夜下单 '+la.shop_events+' 次':''}</div>`;
+  }else h+=`<div class="empty">没读到：${esc(la.reason||'深夜取数失败')}</div>`;
+  if(ph.status==='ok')h+=`<div class="wrow"><span>刷手机 22–02</span><span class="v num">${esc(ph.night_min_day)} 分/天</span><span class="dd num ${ph.nights_ok>=ph.nights_n?'':'dn'}">${esc(ph.nights_ok)}/${esc(ph.nights_n)} 夜</span></div>`;
+  else if(ph.status==='error')h+=`<div class="empty">刷手机没读到：${esc(ph.reason)}</div>`;
+  h+=`</div>`;
+
+  h+=`<div class="sec">睡 眠</div><div class="list">`;
+  if(sl.status==='ok'){
+    const hm=v=>v==null?'—':(v/60).toFixed(1)+' h';
+    const rows=[['躺平中位',clockRel(sl.med_bed),clockRel(psl.med_bed)],
+                ['起床中位',clockRel(sl.med_wake),clockRel(psl.med_wake)],
+                ['睡着',hm(sl.avg_total),hm(psl.avg_total)],
+                ['睡眠效率',sl.eff==null?'—':sl.eff+'%',psl.eff==null?'—':psl.eff+'%'],
+                ['夜间清醒',sl.awake==null?'—':sl.awake+' 分',psl.awake==null?'—':psl.awake+' 分']];
+    h+=rows.map(([k,v,p])=>`<div class="wrow"><span>${k}</span><span class="v num">${esc(v)}</span><span class="dd num">${esc(p)}</span></div>`).join('');
+    h+=`<div class="note">${esc(sl.n)} 夜 · 右列是上周 · 不足 6h ${sl.n_lt6h==null?'—':esc(sl.n_lt6h)} 夜</div>`;
+  }else h+=`<div class="empty">没读到：${esc(sl.reason||'睡眠取数失败')}</div>`;
+  h+=`</div>`;
+
+  h+=`<div class="sec">节 律</div><div class="list">`;
+  const RR=Array.isArray(W.rhythms)?W.rhythms:[];
+  if(!RR.length)h+=`<div class="empty">没读到节律。</div>`;
+  for(const r of RR){const{cls,cur}=wkRhythm(r);
+    h+=`<div class="rh ${cls}"><span><i class="mk"></i></span><span class="nm">${esc(r.name)}</span><span class="cur num">${esc(cur)}</span></div>`}
+  h+=`</div>`;
+
+  h+=`<div class="sec">判 读</div><div class="list">`;
+  const V=Array.isArray(W.verdicts)?W.verdicts:[];
+  if(!V.length){
+    const hb=W.heartbeats&&W.heartbeats.weekly_review;
+    h+=`<div class="empty">本周判读未到${hb?'（心跳 '+new Date(hb).toTimeString().slice(0,5)+'）':'（还没有心跳）'}</div>`;
+  }else for(const v of V){
+    const e=v.evidence&&typeof v.evidence==='object'?Object.keys(v.evidence).map(k=>k+' '+v.evidence[k]).join(' · '):'';
+    h+=`<div class="vd">${v.kind==='proposal'?'改判建议：':''}${esc(v.text)}`
+      +(v.kind==='proposal'?`<i class="st ${esc(v.status)}">${esc(VD_ST[v.status]||v.status)}</i>`:'')
+      +(e?`<div class="ev">${esc(e)}</div>`:'')+`</div>`;
+  }
+  h+=`</div>`;
+  el.innerHTML=h; enter(el,'week');
+}
+function renderAll(){if(!D)return;renderToday();renderMain();renderWeek()}
 
 /* ---------- tab：按时段落地（18 点前主线，18 点后今天），当次打开内可手动切换 ---------- */
 function byTime(){const h=localNow().getHours();return h>=18||h<4?'today':'main'}
 function current(){const b=document.querySelector('nav button.on');return b?b.dataset.v:byTime()}
 function show(v){document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0)}
-document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
+  show(b.dataset.v);
+  if(b.dataset.v==='week'&&!(D&&D.weekly))load();   /* 周数只在 ?tab=week 的那次请求里来，本周页不进 byTime() 自动落地 */
+}));
 show(byTime());
 let hiddenAt=0;
 document.addEventListener('visibilitychange',()=>{
