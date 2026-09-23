@@ -19,7 +19,10 @@
    09-21 她定「天色」：背景是此刻的天空，按南京当天真实日出日落插值（黎明→上午→正午→金色时刻→黄昏→蓝调→夜）；
    上方纸本 / 夜航变量保留作底层默认，被 html[data-look=sky] 覆盖。22:45 后手机是灰度——层级靠明暗和字形，不靠颜色。
    09-22 印刷感一轮（她看了 zaraintokyo.com 后定）：圆角 22→4 + 发丝线；首页大数字不进卡；强调词上朱红代替荧光笔；主线色降饱和；数字 Cormorant 300；
-   加一套自绘内联 SVG（规范：方形画布、墨线 1.5 圆头、只三种填充＝纸/墨/一处朱红；sky-dark 下墨纸互换）——首页日/月按真实日出日落走位，八条主线各一枚。 */
+   加一套自绘内联 SVG（规范：方形画布、墨线 1.5 圆头、只三种填充＝纸/墨/一处朱红；sky-dark 下墨纸互换）——首页日/月按真实日出日落走位，八条主线各一枚。
+   09-23 她看第三批后提的三条体验修正：①今天页能往前翻（‹ › + 横向滑动，最多 14 天＝镜像窗口）；
+   ②主线页的状态印章从「饿/稳/满」三个宋体字改成图鉴风格的记号，措辞改判为久未碰/平稳/充足；
+   ③本周页五组图全部换成内联 SVG（格子条 / 方格 / 圆点 / 量规 / 堆叠条 / 小时间轴），同一支笔。 */
 :root{
   --paper:#f4eee3;--ink:#231e19;--ink2:#6f655a;--ink3:#a69b8d;--accent:#b3342a;--accent-soft:rgba(179,52,42,.22);
   --rule:rgba(90,110,140,.13);--margin:rgba(179,52,42,.35);--glow:none;--grain:0;
@@ -146,7 +149,7 @@ html:not(.night) .count .n{color:var(--ink)}
 .ask .done{font-size:16px;line-height:2}
 .ask .wait{font-size:13px;color:var(--ink3);letter-spacing:.1em}
 
-/* 主线页（09-23 第三批）：今日配比带 + 饿度 */
+/* 主线页（09-23 第三批）：今日配比带 + 久未碰排序 */
 .lede2{font-size:19px;line-height:1.8;margin:14px 0 0;letter-spacing:.03em}
 .lede2 u{text-decoration:none;color:var(--accent)}
 .lede2 .ev{display:block;font-size:13px;color:var(--ink2);letter-spacing:.08em;line-height:1.9}
@@ -161,14 +164,43 @@ html:not(.night) .count .n{color:var(--ink)}
 .grow .nm{font-size:16px;letter-spacing:.1em}
 .grow .v{font-size:18px;color:var(--ink);white-space:nowrap}
 .grow .v sub{font-size:11px;color:var(--ink3);margin-left:2px;vertical-align:baseline;font-style:normal}
-.stamp{width:24px;height:24px;display:grid;place-items:center;font-size:12px;border:1px solid var(--ink3);color:var(--ink3);border-radius:2px;justify-self:end}
-.stamp.hungry{border-color:var(--accent);color:var(--accent)}
-.stamp.full{border-color:var(--ink);color:var(--ink)}
+/* 状态记号（09-23 改判）：原先是 24px 的框里塞 12px 的「饿 / 稳 / 满」三个宋体字，她看成了「恶 / 文」，框与字也对不齐。
+   改成图鉴那支笔画的 16px 记号，flex 居中对齐行内基线（不用 grid place-items——那个会跟字体基线打架）。 */
+.stamp{width:16px;height:16px;display:flex;align-items:center;justify-content:center;justify-self:end}
+.stamp svg{display:block;width:16px;height:16px}
 .gmeta{grid-column:2/-1;color:var(--ink3);font-size:11.5px;line-height:19px;margin:-9px 0 7px;letter-spacing:.04em}
 .gmeta b{font-weight:400;color:var(--ink2)}
 .detail{display:none;padding:0 0 4px}
 .gene.open .detail{display:block}
 .gene.open .grow .nm{color:var(--accent)}
+
+/* 今天页翻页（09-23）：两个字符跟在星期后面，不另占一列——挂在 .hd 上会把大日期挤窄、逼它多折一行 */
+.dsub{display:flex;align-items:center;gap:12px}
+.pager{display:flex;align-items:center;gap:6px}
+.pager button{border:0;background:none;padding:0 4px;font:300 20px/1 var(--text);color:var(--ink2);cursor:pointer}
+.pager button[disabled]{opacity:.22;pointer-events:none}
+.date[data-back]{cursor:pointer}
+#v-today{touch-action:pan-y}
+
+/* 本周页的图行（09-23）：名字 / 图 / 数，三列，名字长了省略号，375 下不换行不溢出 */
+.gr{display:grid;grid-template-columns:1fr auto auto;align-items:center;column-gap:9px;line-height:28px;font-size:13.5px}
+.gr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gr .gx{display:flex;align-items:center}
+.gr .gx svg{display:block}
+.gr .cur{font-size:12.5px;color:var(--ink2);white-space:nowrap;text-align:right}
+.gr .dd{font-size:11px;color:var(--ink3);white-space:nowrap;text-align:right;min-width:30px}
+.gr .dd.up{color:var(--c-work)}
+.gr .dd.dn{color:var(--accent)}
+.gr.miss .cur{color:var(--accent)}
+.gr.met .cur{color:var(--ink)}
+.figs .bx{margin:2px 0 1px}
+.figs .bx svg{display:block}
+.figs .bx.prev{opacity:.42;transform:scale(.82);transform-origin:0 50%}
+.stack{display:block;width:100%;height:12px;border-radius:2px}
+.lgd{display:flex;flex-wrap:wrap;gap:0 12px;font-size:11px;color:var(--ink3);line-height:19px;margin-top:6px}
+.lgd i{display:inline-block;width:7px;height:7px;border-radius:1px;margin-right:5px}
+.axrow{margin:-4px 0 8px}
+.axrow svg{display:block;width:100%;height:26px}
 
 /* 底 */
 .foot{margin-top:40px;color:var(--ink3);font-size:12px;line-height:20px}
@@ -245,6 +277,12 @@ html[data-look=sky] nav{background:linear-gradient(to top,var(--sky-b) 60%,trans
 .ill .as{stroke:var(--ill-accent);stroke-width:2.2}
 .ill .dim{opacity:.55}
 .ill .dot{fill:var(--ill-ink);stroke:none}
+/* 09-23 本周页的图共用这几支笔：hair＝空心的细线，ar＝朱红的线，af＝朱红的填充，tick＝刻度，tx＝轴上的小字 */
+.ill .hair{stroke-width:1.1;opacity:.45}
+.ill .ar{stroke:var(--ill-accent)}
+.ill .af{fill:var(--ill-accent);stroke:none}
+.ill .tick{stroke-width:1.4}
+.ill .tx{fill:var(--ill-ink);stroke:none;font:10px/1 var(--num);font-variant-numeric:lining-nums tabular-nums;opacity:.55}
 .celest{flex:none;width:116px;height:96px;overflow:visible;transition:transform .4s,filter .4s;animation:float 7s ease-in-out infinite;transform-origin:50% 90%}
 .celest:active{transform:translateY(-3px);filter:drop-shadow(0 8px 24px var(--accent-soft))}
 .celest .sun.low .f{fill:var(--ill-accent)}   /* 贴地平线时太阳是朱红的——旭日 / 落日 */
@@ -324,64 +362,103 @@ async function load(){
   }catch(e){$('#foot').textContent=(D?'用缓存 · ':'')+'读取失败：'+e.message}
 }
 
-/* ---------- 今天 ---------- */
+/* ---------- 今天（09-23 起可以往前翻） ----------
+   viewDay = null 就是今天，走原来的 D 与原来的刷新逻辑；不是 null 就从 dayCache 取那一天。
+   往回最多 14 天，因为 cal-mirror 的窗口就是 back=14d——再往前库里根本没有镜像，翻过去只会给她一片空白。
+   翻到过去的日子：没有「现在」，所以收工倒数、收工判读、睡前轻推、现在刻度全部不出现；
+   留下的是那一天真实发生过的：时间轴、色带、那晚的睡眠、当天的身体。 */
+const MAX_BACK=14;
+const dayCache={};          /* 翻过的日子只在内存里缓存，不写 localStorage——那格留给今天 */
+let viewDay=null, dayErr='';
+function addDays(ds,n){const d=new Date(ds+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function dayDiff(a,b){return Math.round((new Date(a+'T00:00:00Z')-new Date(b+'T00:00:00Z'))/864e5)}
+function goDay(n){
+  if(!D)return;
+  const t=addDays(viewDay||D.today,n), off=dayDiff(t,D.today);
+  if(off>0||off<-MAX_BACK)return;                 /* 不能翻到未来，也不能翻出镜像窗口 */
+  viewDay=off===0?null:t; dayErr='';
+  if(viewDay&&!dayCache[viewDay])loadDay(viewDay); else renderToday();
+  window.scrollTo(0,0);
+}
+function backToToday(){if(!viewDay)return;viewDay=null;dayErr='';renderToday();window.scrollTo(0,0)}
+async function loadDay(day){
+  renderToday();                                   /* 先把「正在读这一天…」画出来 */
+  try{
+    const r=await fetch(API+'?token='+encodeURIComponent(TOKEN)+'&tab=today&day='+encodeURIComponent(day),{cache:'no-store'});
+    const d=await r.json(); if(!d.ok)throw new Error(d.error||r.status);
+    dayCache[day]=d; dayErr='';
+  }catch(e){dayErr=e.message}                      /* 读不到就说读不到，不拿今天的数顶替 */
+  if(viewDay===day)renderToday();
+}
+function babyMinOf(T){let m=0;for(const e of T.today_events||[]){if(e.all_day||e.recurring||e.calendar!=='育儿')continue;
+  const s=new Date(e.start),en=e.end?new Date(e.end):new Date(+s+15*60000);m+=Math.max(0,(en-s)/60000)}return m}
+function todaySrc(){return viewDay?(dayCache[viewDay]||null):D}
 function renderToday(){
-  const today=D.today, base=new Date(today+'T00:00:00+08:00');
-  const [yy,mo,dd]=today.split('-').map(Number);
-  const wd=WEEK[new Date(today+'T12:00:00+08:00').getDay()];
-  const now=localNow(), nowM=(now-base)/60000, hour=now.getHours();
-  const ln=D.last_night||{}, b=D.body_today||{};
-  const evening=hour>=18||hour<4||Q.get('close')==='1';   /* 过了午夜到 04:00 仍算「今晚」（她实测最晚躺下 03:05）；04:00 后是新的一天 */
-  const eveM=nowM<4*60?nowM+1440:nowM;
-  const budget=budgetLevel(ln);
-  atmosphere(nowM);
+  const el=$('#v-today'); if(!el||!D)return;
+  const realBase=new Date(D.today+'T00:00:00+08:00'), realNowM=(localNow()-realBase)/60000;
+  atmosphere(realNowM,D.today);                    /* 天色永远是此刻的天空，不跟着翻页走 */
+  const isToday=!viewDay, day=viewDay||D.today, T=todaySrc(), off=isToday?0:dayDiff(day,D.today);
+  const base=new Date(day+'T00:00:00+08:00'), nowM=isToday?realNowM:null;
+  const [yy,mo,dd]=day.split('-').map(Number);
+  const wd=WEEK[new Date(day+'T12:00:00+08:00').getDay()];
+  const hour=localNow().getHours();
+  const evening=isToday&&(hour>=18||hour<4||Q.get('close')==='1');   /* 过了午夜到 04:00 仍算「今晚」（她实测最晚躺下 03:05）；04:00 后是新的一天 */
   let h='<div class="hero">';
-  h+=`<div class="hd"><div class="date"><b>${CN_MONTH[mo-1]}月${cnDay(dd)}日</b><span>星期${wd}${evening?' · 晚':''}</span></div>${celestSVG(nowM)}</div>`;
-  if(isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
+  h+=`<div class="hd"><div class="date"${isToday?'':' data-back="1"'}><b>${CN_MONTH[mo-1]}月${cnDay(dd)}日</b>`
+    +`<div class="dsub"><span>星期${wd}${isToday?(evening?' · 晚':''):' · 点这里回到今天'}</span>`
+    +`<span class="pager"><button data-d="-1"${off<=-MAX_BACK?' disabled':''} aria-label="前一天">‹</button>`
+    +`<button data-d="1"${off>=0?' disabled':''} aria-label="后一天">›</button></span></div></div>`
+    +(isToday?celestSVG(realNowM,D.today):'')+`</div>`;
+  if(off<=-MAX_BACK)h+=`<div class="note">更早的日历没有镜像。</div>`;
+  if(!T){h+=`<div class="note">${dayErr?esc('这一天没读到：'+dayErr):'正在读这一天…'}</div></div>`;el.innerHTML=h;return}
+  if(isToday&&isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
+  const ln=T.last_night||{}, b=T.body_today||{};
+  const budget=budgetLevel(ln);
   if(evening){
-    const left=CLOSE_M-eveM;
+    const eveM=realNowM<4*60?realNowM+1440:realNowM, left=CLOSE_M-eveM;
     const big=left>0?`${Math.floor(left/60)}:${pad(Math.floor(left%60))}`:`+${Math.floor(-left/60)?Math.floor(-left/60)+':'+pad(Math.floor(-left%60)):Math.floor(-left)+'′'}`;
     const lede=left>0?`还有<u>${cnSpan(left)}</u>，<span class="nb">今天就收。</span>`:(eveM<BED_M?`已经过了收工线<u>${cnSpan(-left)}</u>。现在放下，${hhmm(BED_M)} 躺下。`:`过了躺下的时间<u>${cnSpan(eveM-BED_M)}</u>。什么都不用做完，去躺下。`);
-    h+=`<div class="close"><div class="count"><div class="n num">${big}</div><div class="l">${left>0?'离收工':'已过收工'}</div><div class="seal">收<small>${hhmm(CLOSE_M)}</small></div></div><p class="lede">${lede}</p>${nudgeHTML(budget,today)}</div>`;
+    h+=`<div class="close"><div class="count"><div class="n num">${big}</div><div class="l">${left>0?'离收工':'已过收工'}</div><div class="seal">收<small>${hhmm(CLOSE_M)}</small></div></div><p class="lede">${lede}</p>${nudgeHTML(budget,day)}</div>`;
   }
   h+='</div>';
   const figs=[];
-  if(ln.total_min!=null)figs.push([(ln.total_min/60).toFixed(1),'h','昨晚睡了']);
-  figs.push([String(D.deep_hours_today??0),'h','今天深工']);
+  if(ln.total_min!=null)figs.push([(ln.total_min/60).toFixed(1),'h',isToday?'昨晚睡了':'那晚睡了']);
+  figs.push([String(T.deep_hours_today??0),'h',isToday?'今天深工':'当天深工']);
   if(evening)figs.push([budget,'','今晚预算']);
-  else{let babyMin=0;for(const e of D.today_events||[]){if(e.all_day||e.recurring||e.calendar!=='育儿')continue;const s=new Date(e.start),en=e.end?new Date(e.end):new Date(+s+15*60000);babyMin+=Math.max(0,(en-s)/60000)}
-       figs.push([String(Math.round(babyMin)),'分','陪悠悠'])}
-  if(b.steps!=null&&!evening)figs.push([b.steps.toLocaleString(),'','步数']);
+  else if(!isToday)figs.push(b.steps!=null?[b.steps.toLocaleString(),'','步数']:[String(Math.round(babyMinOf(T))),'分','陪悠悠']);
+  else figs.push([String(Math.round(babyMinOf(T))),'分','陪悠悠']);
+  if(b.steps!=null&&isToday&&!evening)figs.push([b.steps.toLocaleString(),'','步数']);
   h+=`<div class="figs">${figs.slice(0,3).map(([v,u,k])=>`<div><div class="v num">${esc(v)}${u?`<sub>${u}</sub>`:''}</div><div class="k">${esc(k)}</div></div>`).join('')}</div>`;
-  h+=stripeHTML(base,nowM);
-  h+=`<div class="sec">今 日</div>`;
-  h+=`<div class="list">${entriesHTML(base,nowM)}</div>`;
-  const el=$('#v-today'); el.innerHTML=h; enter(el,'today');
+  h+=stripeHTML(T,base,nowM);
+  h+=`<div class="sec">${isToday?'今 日':'那 天'}</div>`;
+  h+=`<div class="list">${entriesHTML(T,base,nowM)}</div>`;
+  el.innerHTML=h; enter(el,'today');
 }
 function nudgeHTML(budget,day){
   if(budget==='低'||budget==='—')return`<p class="nudge">今晚只做一件：手机放回书桌，洗个热澡就躺。</p>`;
   const n=Number(String(day).replace(/-/g,''))||0;
   return`<p class="nudge">手机放回书桌时，说两分钟：没做完的，明天第一步。热水澡，灯调暗，${hhmm(BED_M)} 躺下。<span class="tail">${NUDGE_TAIL[n%NUDGE_TAIL.length]}</span></p>`;
 }
-function entriesHTML(base,nowM){
-  const rows=[];
-  for(const e of D.today_events||[]){
+/* nowM = null 就是在看过去的某一天：没有「现在」，所以不画现在刻度、也不把整天都标成 past（一整天都是过去，标了反而全灰） */
+function entriesHTML(T,base,nowM){
+  const rows=[], live=nowM!=null;
+  for(const e of T.today_events||[]){
     if(e.all_day)continue;
     const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15, dur=Math.max(en-s,0);
     const sleep=e.calendar==='休息'&&/睡/.test(e.title||'');
     let label=clean(e.title), t=s, dtxt=fmtDur(dur);
-    if(sleep&&s<12*60){label='醒来';t=en;dtxt='睡了 '+fmtDur(dur)}   /* 昨晚的觉：记醒来那一刻 */
-    else if(sleep&&s>nowM)continue;
-    const cls=e.recurring?'plan':(en<nowM-180?'past':'');
+    if(sleep&&s<12*60){label='醒来';t=en;dtxt='睡了 '+fmtDur(dur)}   /* 那一夜的觉：记醒来那一刻 */
+    else if(sleep&&live&&s>nowM)continue;
+    const cls=e.recurring?'plan':(live&&en<nowM-180?'past':'');
     /* 已经过去的非全天事件才带键——长按它＝「这条没发生」（第三批）。未来的不带，长按无反应 */
-    const d=(e.uid&&s<=nowM)?` data-key="${esc(e.uid)}" data-start="${esc(e.start)}" data-end="${esc(e.end||'')}" data-title="${esc(clean(e.title))}" data-cal="${esc(e.calendar||'')}"`:'';
+    const d=(e.uid&&(!live||s<=nowM))?` data-key="${esc(e.uid)}" data-start="${esc(e.start)}" data-end="${esc(e.end||'')}" data-title="${esc(clean(e.title))}" data-cal="${esc(e.calendar||'')}"`:'';
     rows.push({t,html:`<div class="entry ${cls}"${d}><span class="t num">${hhmm(Math.max(t,0))}</span><span><i class="dot" style="background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>${esc(label)}${e.recurring?'（计划）':''}</span><span class="d">${dtxt}</span></div>`});
   }
-  const anchors=(D.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);return{t:hh*60+mm,label:a.label}});
-  for(const a of anchors){if(a.t<nowM-30&&a.label==='健身')continue;
+  const anchors=(T.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);return{t:hh*60+mm,label:a.label}});
+  for(const a of anchors){if(a.label==='健身'&&(!live||a.t<nowM-30))continue;
     rows.push({t:a.t+.1,html:`<div class="entry mark"><span class="t num">${hhmm(a.t)}</span><span>${esc(a.label)}</span><span></span></div>`})}
-  if(nowM>0&&nowM<26*60)rows.push({t:nowM+.2,html:`<div class="entry now"><span class="t num">${hhmm(nowM)}</span><span>—— 现在 ——</span><span></span></div>`});
-  if(!rows.length)return`<div class="empty">今天的日历还是空的。</div>`;
+  if(live&&nowM>0&&nowM<26*60)rows.push({t:nowM+.2,html:`<div class="entry now"><span class="t num">${hhmm(nowM)}</span><span>—— 现在 ——</span><span></span></div>`});
+  if(!rows.length)return`<div class="empty">${live?'今天':'这一天'}的日历${live?'还是':'是'}空的。</div>`;
   return rows.sort((a,b)=>a.t-b.t).map(r=>r.html).join('');
 }
 function fmtDur(m){if(m<15)return'';if(m<60)return Math.round(m)+' 分';const h=Math.round(m/6)/10;return(Number.isInteger(h)?h:h.toFixed(1))+' 小时'}
@@ -434,11 +511,12 @@ async function doDelete(key,box){
     const r=await fetch(CAL_API+'?mode=delete&token='+encodeURIComponent(TOKEN)+'&key='+encodeURIComponent(key),{cache:'no-store'});
     let d=null; try{d=await r.json()}catch(e){}
     if(!d||!d.ok)throw new Error((d&&d.error)||('HTTP '+r.status));
-    D.today_events=(D.today_events||[]).filter(e=>e.uid!==key);
-    try{localStorage.setItem('diary.snap',JSON.stringify(D))}catch(e){}
+    const S=todaySrc()||D;                                  /* 翻到过去的某天删，就从那天的缓存里抹掉 */
+    S.today_events=(S.today_events||[]).filter(e=>e.uid!==key);
+    if(S===D)try{localStorage.setItem('diary.snap',JSON.stringify(D))}catch(e){}
     renderAll();
     box.innerHTML='<div class="card"><div class="done">已从日历删掉</div></div>';
-    setTimeout(()=>{closeAsk();load()},2000);        /* 2 秒收起，并重新取一次数：主线页的小时数跟着变 */
+    setTimeout(()=>{closeAsk();load();if(viewDay){delete dayCache[viewDay];loadDay(viewDay)}},2000);   /* 2 秒收起，并重新取一次数：主线页的小时数跟着变 */
   }catch(e){
     /* 失败不自动消失、不吞原文——她要能看见是哪一步不行 */
     box.innerHTML='<div class="card"><div class="ttl">没删成</div><div class="err">'+esc(e.message)+'</div>'+
@@ -464,20 +542,27 @@ function classify(r){
   return{cls,cur};
 }
 function fmtN(v){v=Number(v);return Math.abs(v)>=1000?v.toLocaleString():String(Math.round(v*10)/10)}
-/* 饿 / 稳 / 满（09-23 第三批口径，拍板 #38；数在 diary_snapshot().gene_stats 里算好，页面只判读）：
-     饿 = 今日 0 小时 且 距上次 ≥ 2 天。90 天内一次都没有（days_since 为 null）也算饿，排最前，距上次写「90 天以上」。
-     满 = 本周小时 ≥ 1.3 × 前四周同进度均值，且该均值 > 0。
-     其余 = 稳。
+/* 久未碰 / 平稳 / 充足（09-23 第三批口径，拍板 #38；09-23 措辞改判：原「饿 / 稳 / 满」三个字她读成了「恶 / 文」，改词并改成记号）：
+     久未碰 = 今日 0 小时 且 距上次 ≥ 2 天。90 天内一次都没有（days_since 为 null）也算，排最前，距上次写「90 天以上」。
+     充足   = 本周小时 ≥ 1.3 × 前四周同进度均值，且该均值 > 0。
+     其余   = 平稳。
    「前四周同进度均值」＝前 4 个完整周的周均 ×（本周已过天数 / 7），拿本周走到这里该有多少来比，不是拿整周比半周。
    口径排除「休息」与「时间黑洞」两本日历——它们是身体行的传感器，不是投入。
-   排序：饿在前（距上次久的更前），稳居中，满在后。
-   这是状态估计，不是计划（公理一）：只说哪条饿着，不说该做什么。 */
+   排序：久未碰在前（距上次久的更前），平稳居中，充足在后。
+   这是状态估计，不是计划（公理一）：只说哪条久没碰，不说该做什么。
+   记号（图鉴那支笔）：久未碰＝朱红空心圆环，平稳＝墨色小点，充足＝墨色实心圆，没读到＝虚线圈。 */
+const STAMP={
+  hungry:`<svg class="ill" viewBox="0 0 16 16" aria-hidden="true"><circle class="ar tick" cx="8" cy="8" r="4.6"/></svg>`,
+  stable:`<svg class="ill" viewBox="0 0 16 16" aria-hidden="true"><circle class="dot" cx="8" cy="8" r="2"/></svg>`,
+  full:`<svg class="ill" viewBox="0 0 16 16" aria-hidden="true"><circle class="dot" cx="8" cy="8" r="4.6"/></svg>`,
+  none:`<svg class="ill" viewBox="0 0 16 16" aria-hidden="true"><circle class="hair" cx="8" cy="8" r="4.4" stroke-dasharray="1.8 1.8"/></svg>`
+};
 function geneState(x){
-  if(!x)return{k:'none',cn:'—'};
+  if(!x)return{k:'none',cn:'没读到'};
   const t=Number(x.today_h||0), w=Number(x.week_h||0), pr=Number(x.prior4_h||0), ds=x.days_since;
-  if(t===0&&(ds==null||Number(ds)>=2))return{k:'hungry',cn:'饿'};
-  if(pr>0&&w>=1.3*pr)return{k:'full',cn:'满'};
-  return{k:'stable',cn:'稳'};
+  if(t===0&&(ds==null||Number(ds)>=2))return{k:'hungry',cn:'久未碰'};
+  if(pr>0&&w>=1.3*pr)return{k:'full',cn:'充足'};
+  return{k:'stable',cn:'平稳'};
 }
 function detailHTML(rs,ls,g){
   let gh='';
@@ -522,16 +607,17 @@ function renderMain(){
   const base=new Date(D.today+'T00:00:00+08:00'), nowM=(localNow()-base)/60000, hour=localNow().getHours();
   const hungry=rows.filter(r=>r.st.k==='hungry');
 
-  let h=`<div class="hero"><div class="hd"><div class="date"><b>主线</b><span>${CN_MONTH[mo-1]}月${cnDay(dd)}日 · 八条线，哪条饿着</span></div></div>`;
+  let h=`<div class="hero"><div class="hd"><div class="date"><b>主线</b><span>${CN_MONTH[mo-1]}月${cnDay(dd)}日 · 八条线，哪条久没碰</span></div></div>`;
   if(isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
-  if(!hasGS)h+=`<div class="warn">这份是旧版缓存，配比与饿度取不到（出口还没给 gene_stats）。</div>`;
+  if(!hasGS)h+=`<div class="warn">这份是旧版缓存，配比与状态取不到（出口还没给 gene_stats）。</div>`;
   let lede;
   if(!hasGS)lede=`等这一次刷新回来再判。`;
-  else if(!hungry.length)lede=`今天<u>没有饿着的主线</u>。`;
+  else if(!hungry.length)lede=`今天<u>每条线都碰过了</u>。`;
   else{
     const h0=hungry[0], ds=h0.x&&h0.x.days_since!=null?h0.x.days_since+' 天':'90 天以上';
-    lede=`今天最饿的是<u>${esc(h0.g.name)}</u>，今日 0 小时，距上次 ${ds}。`;
-    if(hour>=18)lede+=`<span class="ev">今晚饿的是${hungry.slice(0,2).map(r=>esc(r.g.name)).join('、')}。</span>`;
+    lede=`今天最久没碰的是<u>${esc(h0.g.name)}</u>，今日 0 小时，距上次 ${ds}。`;
+    /* 18 点后只补一句「还没碰的是谁」——不写「该做什么」（公理一：不生成计划） */
+    if(hour>=18)lede+=`<span class="ev">今晚还没碰的是${hungry.slice(0,2).map(r=>esc(r.g.name)).join('、')}。</span>`;
   }
   h+=`<p class="lede2">${lede}</p></div>`;
 
@@ -542,7 +628,7 @@ function renderMain(){
      withH.map(r=>`<i style="width:${(Number(r.x.today_h)/tot*100).toFixed(2)}%;background:var(${GENE_COLOR[r.g.id]||'--c-life'})"></i>`).join('')+
      `</div><div class="lab"><span class="l">${withH.length?withH.slice(0,3).map(r=>esc(r.g.name)+' '+Number(r.x.today_h).toFixed(1)).join(' · '):'今天还没有记录到时间'}</span>`+
      `<span class="r">已记录 ${tot.toFixed(1)} h</span></div></div>`;
-  h+=stripeHTML(base,nowM);   /* 缩略时间轴照旧，按日历上色 */
+  h+=stripeHTML(D,base,nowM);   /* 缩略时间轴照旧，按日历上色；主线页永远看今天，不跟着今天页翻 */
 
   h+=`<div class="sec">目 录</div>`;
   for(const {g,x,st} of rows){
@@ -554,7 +640,8 @@ function renderMain(){
     if(rs.length)meta.push('节律 '+rs.filter(r=>r.met).length+'/'+rs.length);
     h+=`<div class="gene${openGenes.has(g.id)?' open':''}" data-g="${esc(g.id)}" style="--g:var(${GENE_COLOR[g.id]||'--c-life'})">`+
        `<div class="grow"><span class="ico ill">${GENE_ICON[g.id]||''}</span><span class="nm">${esc(g.name)}</span>`+
-       `<span class="v num">${hasGS?t.toFixed(1):'—'}<sub>h</sub></span><span class="stamp ${st.k}">${st.cn}</span>`+
+       `<span class="v num">${hasGS?t.toFixed(1):'—'}<sub>h</sub></span>`+
+       `<span class="stamp ${st.k}" role="img" aria-label="${esc(st.cn)}" title="${esc(st.cn)}">${STAMP[st.k]||STAMP.none}</span>`+
        `<div class="gmeta">${hasGS?meta.join(' · '):'小时数没读到'}</div></div>`+
        `<div class="detail">${detailHTML(rs,ls,g)}</div></div>`;
   }
@@ -577,8 +664,8 @@ const GENE_ICON={
   life:I(`<path class="f" pathLength="1" d="M11 20 H31 V30 Q31 37.5 21 37.5 Q11 37.5 11 30Z"/><path pathLength="1" d="M31 23.5 Q38.5 23 38 28 Q37.5 32 31 31.5"/><path pathLength="1" d="M8 41.5 H34"/><path class="dim" pathLength="1" d="M17 15.5 Q15 12.5 17 9.5 M24 15.5 Q22 12.5 24 9.5"/><circle class="a" cx="21" cy="28" r="1.9"/>`)   /* 一杯茶，杯身一点红 */
 };
 /* 首页日 / 月：太阳在日出→日落之间画一道弧，月亮在日落→次日日出；贴地平线时太阳是朱红的。画布 120×96，地平线 y=84。 */
-function celestSVG(nowM){
-  const {rise:r,set:st}=sunTimes(D.today), m=((nowM%1440)+1440)%1440, H=84;
+function celestSVG(nowM,ds){
+  const {rise:r,set:st}=sunTimes(ds||D.today), m=((nowM%1440)+1440)%1440, H=84;
   const day=m>=r&&m<=st, f=day?(m-r)/(st-r):((m>st?m:m+1440)-st)/((r+1440)-st), alt=Math.sin(Math.PI*Math.max(0,Math.min(1,f)));
   const y=Math.round((H-alt*62)*10)/10, low=day&&alt<.28;
   let body;
@@ -595,18 +682,18 @@ function celestSVG(nowM){
     `<path pathLength="1" d="M6 ${H} H114"/><path class="dim" pathLength="1" d="M58 ${H} Q80 72 108 ${H}"/><path pathLength="1" d="M17 ${H} L16 79.5 M21.5 ${H} L22 78.5 M26 ${H} L27.5 80 M95 ${H} L96.5 79.5"/></svg>`;
 }
 /* 今日色带：05:00→次日 02:00，每件事按日历分类上色——一天的形状 */
-function stripeHTML(base,nowM){
+function stripeHTML(T,base,nowM){
   const S=5*60,E=26*60,X=m=>Math.max(0,Math.min(100,(m-S)/(E-S)*100));
   let seg='';
-  for(const e of D.today_events||[]){
+  for(const e of T.today_events||[]){
     if(e.all_day||e.recurring)continue;
     const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15;
     if(en<=S||s>=E)continue;
     const a=X(s), w=Math.max(X(en)-a,.6);
     seg+=`<i class="seg" style="left:${a}%;width:${w}%;background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>`;
   }
-  const marks=(D.anchors||[]).filter(a=>a.label!=='健身').map(a=>{const[hh,mm]=a.t.split(':').map(Number);return`<i class="mark" style="left:${X(hh*60+mm)}%"></i>`}).join('');
-  const now=nowM>S&&nowM<E?`<i class="nowtick" style="left:${X(nowM)}%"></i>`:'';
+  const marks=(T.anchors||[]).filter(a=>a.label!=='健身').map(a=>{const[hh,mm]=a.t.split(':').map(Number);return`<i class="mark" style="left:${X(hh*60+mm)}%"></i>`}).join('');
+  const now=(nowM!=null&&nowM>S&&nowM<E)?`<i class="nowtick" style="left:${X(nowM)}%"></i>`:'';
   return`<div class="stripe"><div class="track"><div class="bar">${seg}</div>${marks}${now}</div><div class="ticks num"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span><span>01</span></div></div>`;
 }
 /* 天色：按南京（她现在的基地；回上海后改 LAT/LON，差约十分钟）当天真实日出日落，把天空关键帧钉在太阳上 */
@@ -628,8 +715,8 @@ function skyFrames(dateStr){
     [st+110,'#191a42','#2c2250',1],[1440,'#0c0d20','#1b1737',1]].sort((a,b)=>a[0]-b[0]);
 }
 function mix(a,b,t){const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
-function atmosphere(nowM){
-  const SKY=skyFrames(D.today);
+function atmosphere(nowM,day){
+  const SKY=skyFrames(day||D.today);
   const m=((Math.round(nowM)%1440)+1440)%1440; let i=0; while(i<SKY.length-2&&SKY[i+1][0]<=m)i++;
   const [m0,a0,b0,d0]=SKY[i],[m1,a1,b1,d1]=SKY[i+1], t=m1>m0?(m-m0)/(m1-m0):0;
   const r=document.documentElement.style;
@@ -643,6 +730,100 @@ function mdCN(s){if(!s)return'';const[y,m,d]=String(s).split('-').map(Number);re
 function clockRel(m){if(m==null)return'—';m=((Math.round(Number(m))%1440)+1440)%1440;return pad(Math.floor(m/60))+':'+pad(m%60)}
 function delta(x){const v=Number(x);if(!isFinite(v))return{s:'',cls:''};
   return{s:(v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(1),cls:v>0?'up':v<0?'dn':''}}
+/* ---------- 本周页的图（09-23）：全部内联 SVG，沿用图鉴那支笔——纸 / 墨 / 一处朱红 ----------
+   规矩：能数的画成可数的（格子 / 方格 / 圆点），有上限或有目标的画成量规（一根竖刻度就是目标），
+   有构成的画成按日历上色的堆叠条，有时刻的画成一根小时间轴。没读到的段照旧只写「没读到」，不画空图。 */
+const SV=(w,h,body,cls)=>`<svg class="ill ${cls||''}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${body}</svg>`;
+/* (a) 格子条：1 格 = 1 小时/天，最后一格按小数填一部分，最多 9 格；ref 是「前四周日均」的竖刻度，条尾到刻度的距离就是差值 */
+function cellsSVG(v,ref){
+  const N=9,P=13,W=11,H=11,y=3, val=Math.max(0,Number(v)||0), fill=Math.min(val,N), full=Math.floor(fill+1e-9), frac=fill-full;
+  let s='';
+  for(let i=0;i<N;i++){const x=i*P;
+    if(i<full){s+=`<rect class="dot" x="${x}" y="${y}" width="${W}" height="${H}" rx="1"/>`;continue}
+    s+=`<rect class="hair" x="${x+.55}" y="${y+.55}" width="${W-1.1}" height="${H-1.1}" rx="1"/>`;
+    if(i===full&&frac>.04)s+=`<rect class="dot" x="${x}" y="${y}" width="${(W*frac).toFixed(2)}" height="${H}" rx="1"/>`;
+  }
+  if(ref!=null&&isFinite(ref)){const rx=Math.min(Math.max(Number(ref),0),N)*P-1;
+    s+=`<path class="tick" d="M${rx.toFixed(1)} 0 V${y*2+H}"/>`}
+  if(val>N)s+=`<path class="ar tick" d="M${N*P-1} ${y+1.5} l4 ${(H/2-1.5).toFixed(1)} l-4 ${(H/2-1.5).toFixed(1)}"/>`;
+  return SV(120,17,s);
+}
+/* (b) 小方格：n 格＝该周夜数/天数，前 filled 格填实；ghost 之后的是「那天没读到」，画虚线 */
+function boxesSVG(n,filled,opt){
+  const P=9,W=7,H=7,y=1,o=opt||{},cls=o.accent?'af':'dot';
+  let s='';
+  for(let i=0;i<n;i++){const x=i*P;
+    if(i<filled)s+=`<rect class="${cls}" x="${x}" y="${y}" width="${W}" height="${H}" rx="1"/>`;
+    else if(o.ghost!=null&&i>=o.ghost)s+=`<rect class="hair" x="${x+.5}" y="${y+.5}" width="${W-1}" height="${H-1}" rx="1" stroke-dasharray="1.6 1.6"/>`;
+    else s+=`<rect class="hair" x="${x+.5}" y="${y+.5}" width="${W-1}" height="${H-1}" rx="1"/>`;
+  }
+  return SV(Math.max(n,1)*P-2,H+2,s);
+}
+/* (c-1) 圆点：目标 n 次，完成填墨、未完成空心；这一周已经走完还没达标的，空心圈改朱红 */
+function dotsSVG(n,done,miss){
+  const P=13,R=4.3;let s='';
+  for(let i=0;i<n;i++){const cx=i*P+R+1.2;
+    s+=i<done?`<circle class="dot" cx="${cx}" cy="7" r="${R}"/>`
+             :`<circle class="${miss?'ar tick':'hair'}" cx="${cx}" cy="7" r="${R-.4}"/>`}
+  return SV(Math.max(n,1)*P,14,s);
+}
+/* (c-2) 量规：墨色填到当前值，目标处一根竖刻度；上限型超线的那一段是朱红，至少型没到线就把刻度画成朱红 */
+function gaugeSVG(cur,tgt,dir){
+  const W=96,H=12,y=2,bh=8, c=Math.max(0,Number(cur)||0), t=Math.max(0,Number(tgt)||0);
+  const max=Math.max(t,c)*1.15||1, X=v=>Math.max(0,Math.min(W,v/max*W));
+  let s=`<rect class="hair" x=".5" y="${y+.5}" width="${W-1}" height="${bh-1}" rx="1"/>`;
+  if(dir==='max'){
+    s+=`<rect class="dot" x="0" y="${y}" width="${X(Math.min(c,t)).toFixed(1)}" height="${bh}" rx="1"/>`;
+    if(c>t)s+=`<rect class="af" x="${X(t).toFixed(1)}" y="${y}" width="${(X(c)-X(t)).toFixed(1)}" height="${bh}" rx="1"/>`;
+    s+=`<path class="tick${c>t?' ar':''}" d="M${X(t).toFixed(1)} 0 V${H}"/>`;
+  }else{
+    s+=`<rect class="dot" x="0" y="${y}" width="${X(c).toFixed(1)}" height="${bh}" rx="1"/>`;
+    s+=`<path class="tick${c>=t?'':' ar'}" d="M${X(t).toFixed(1)} 0 V${H}"/>`;
+  }
+  return SV(W,H,s);
+}
+/* (c-3) 月 / 季型：只画一个记号 */
+function markSVG(st){
+  if(st==='met')return SV(14,14,`<circle class="dot" cx="7" cy="7" r="4.6"/>`);
+  if(st==='miss')return SV(14,14,`<circle class="ar tick" cx="7" cy="7" r="4.4"/>`);
+  return SV(14,14,`<circle class="hair" cx="7" cy="7" r="4.4" stroke-dasharray="1.8 1.8"/>`);
+}
+/* (d) 堆叠条：按日历上色（填充走 style，否则会被 .ill * 的 fill:none 盖掉） */
+function stackSVG(pairs,total){
+  if(!(total>0)||!pairs.length)return'';
+  let x=0,s='';
+  for(const[k,v]of pairs){const w=Math.max(Number(v)/total*100,.6);
+    s+=`<rect x="${x.toFixed(2)}" y="0" width="${w.toFixed(2)}" height="10" style="fill:var(${CAL_COLOR[k]||'--c-life'});stroke:none"/>`;x+=w}
+  return`<svg class="ill stack" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
+}
+/* (e) 小时间轴：本周墨色实心点、上周空心点，v1.3 的线一根淡刻度 */
+function axisSVG(lo,hi,vNow,vPrev,ref,labs){
+  const W=250,H=26,y=17,X=v=>((Math.min(Math.max(Number(v),lo),hi)-lo)/(hi-lo))*(W-20)+10;
+  let s=`<path class="hair" style="stroke-width:1.2" d="M8 ${y} H${W-8}"/>`;
+  if(ref!=null)s+=`<path class="tick dim" d="M${X(ref).toFixed(1)} ${y-6} V${y+6}"/>`;
+  if(vPrev!=null)s+=`<circle class="tick" style="opacity:.55" cx="${X(vPrev).toFixed(1)}" cy="${y}" r="3.6"/>`;
+  if(vNow!=null)s+=`<circle class="dot" cx="${X(vNow).toFixed(1)}" cy="${y}" r="4"/>`;
+  s+=`<text class="tx" x="8" y="8">${esc(labs[0])}</text><text class="tx" x="${W-8}" y="8" text-anchor="end">${esc(labs[1])}</text>`;
+  return`<svg class="ill ax" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${s}</svg>`;
+}
+/* 节律按类型分：day＝每天型，week+上限＝量规，week+小时＝量规（至少型），week+次数＝圆点，月/季/年＝一个记号。
+   全部从表里的 period / direction / unit 推，加新节律自动归类，不写死名字。 */
+function rhKind(r){
+  if(r.period==='day')return'days';
+  if(r.period==='week')return(r.direction==='max'||r.unit==='小时')?'gauge':'count';
+  return'mark';
+}
+function rhFigure(r,full){
+  const st=(!r||r.status==='dark'||r.status==='error'||r.status==='noread')?'noread':(r.met===true?'met':r.met===false?'miss':'pend');
+  if(st==='noread')return rhKind(r)==='days'?boxesSVG(7,0,{ghost:0}):markSVG('noread');
+  const cur=Number(r.current)||0, tgt=Number(r.target)||0;
+  switch(rhKind(r)){
+    case'days':return boxesSVG(7,Math.min(cur,7),{ghost:Math.min(Number(r.days_read)||0,7)});
+    case'gauge':return gaugeSVG(cur,tgt,r.direction);
+    case'count':return dotsSVG(Math.max(1,Math.min(Math.round(tgt),7)),cur,full&&st==='miss');
+    default:return markSVG(st==='pend'?'noread':st);
+  }
+}
 function wkRhythm(r){   /* 达标墨色、未达标朱红、没读到留白——不显示 0 */
   if(!r||r.status==='dark'||r.status==='error'||r.status==='noread')return{cls:'noread',cur:''};
   const cls=r.met===true?'met':r.met===false?'miss':'pend';
@@ -657,49 +838,82 @@ function renderWeek(){
   const pr=W.prior||{}, th=W.three||{}, pth=pr.three||{}, sl=W.sleep||{}, psl=pr.sleep||{};
   const n=sl.n||7, pn=psl.n||7, dd=W.days||7;
   let h=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>${mdCN(W.week_start)} – ${mdCN(W.week_end)}</span></div></div></div>`;
-  const big=[['≤ 00:00',th.n_le_0000,n,pth.n_le_0000,pn],
-             ['过 01:00',th.n_gt_0100,n,pth.n_gt_0100,pn],
-             ['23 点后做项目',th.n_project_after_23,dd,pth.n_project_after_23,7]];
-  h+=`<div class="figs">${big.map(([k,v,d,pv,pd])=>`<div><div class="v num">${v==null?'—':v}<sub>/${d}</sub></div><div class="k">${esc(k)}</div><div class="p num">上周 ${pv==null?'—':pv+' / '+pd}</div></div>`).join('')}</div>`;
-  h+=`<div class="note">三个跟踪数（v1.3 起）：躺平 ≤00:00 的夜 / 过 01:00 的夜 / 23 点后仍在做项目的夜</div>`;
+  /* (b) 三个跟踪数各配一行小方格：一格一夜，数出来的那几夜填实。
+         ≤00:00 是往好里数，填墨；过 01:00 与 23 点后做项目是往坏里数，填朱红——跟全页「朱红＝越线」的用法一致。 */
+  const big=[['≤ 00:00',th.n_le_0000,n,pth.n_le_0000,pn,false],
+             ['过 01:00',th.n_gt_0100,n,pth.n_gt_0100,pn,true],
+             ['23 点后做项目',th.n_project_after_23,dd,pth.n_project_after_23,7,true]];
+  h+=`<div class="figs">${big.map(([k,v,d,pv,pd,bad])=>{
+    const nb=Math.max(1,Math.min(Number(d)||7,7)), pb=Math.max(1,Math.min(Number(pd)||7,7));
+    return`<div><div class="v num">${v==null?'—':v}<sub>/${d}</sub></div>`
+      +(v==null?'':`<div class="bx">${boxesSVG(nb,Math.min(Number(v)||0,nb),{accent:bad})}</div>`)
+      +`<div class="k">${esc(k)}</div>`
+      +`<div class="p num">上周 ${pv==null?'—':pv+' / '+pd}</div>`
+      +(pv==null?'':`<div class="bx prev">${boxesSVG(pb,Math.min(Number(pv)||0,pb),{accent:bad})}</div>`)
+      +`</div>`}).join('')}</div>`;
+  h+=`<div class="note">三个跟踪数（v1.3 起）：躺平 ≤00:00 的夜 / 过 01:00 的夜 / 23 点后仍在做项目的夜 · 一格一夜</div>`;
 
+  /* (a) 时间去哪了：一格 = 1 小时/天，竖刻度＝前四周日均，条尾到刻度的距离就是差值 */
   h+=`<div class="sec">时 间 去 哪 了</div><div class="list">`;
   if(Array.isArray(W.per_cal)&&W.per_cal.length){
-    for(const c of W.per_cal){const d=delta(Number(c.h_day)-Number(c.prior4_h_day));
-      h+=`<div class="wrow"><span>${esc(c.calendar)}</span><span class="v num">${Number(c.h_day).toFixed(1)} h/天</span><span class="dd num ${d.cls}">${d.s}</span></div>`}
-    h+=`<div class="note">右列＝与前四周日均之差 · 覆盖 ${esc(W.coverage_h_day)}h/天 · ${esc(W.events)} 条事件</div>`;
+    for(const c of W.per_cal){const v=Number(c.h_day), pr=Number(c.prior4_h_day), d=delta(v-pr);
+      h+=`<div class="gr"><span class="nm">${esc(c.calendar)}</span>`
+        +`<span class="gx" title="${v.toFixed(1)} h/天 · 前四周日均 ${pr.toFixed(1)}">${cellsSVG(v,pr)}</span>`
+        +`<span class="dd num ${d.cls}">${d.s}</span></div>`}
+    h+=`<div class="note">一格＝1 小时/天，最多 9 格 · 竖刻度＝前四周日均，右列是差值 · 覆盖 ${esc(W.coverage_h_day)}h/天 · ${esc(W.events)} 条事件</div>`;
   }else h+=`<div class="empty">没读到：${esc((W.per_cal&&W.per_cal.reason)||'时间段取数失败')}</div>`;
   h+=`</div>`;
 
+  /* (d) 深夜：by_cal 画一根按日历上色的堆叠条（分钟/天）+ 一行小图例；刷手机那行加 7 格（达标夜填墨） */
   const la=W.late||{}, ph=W.phone||{};
   h+=`<div class="sec">深 夜</div><div class="list">`;
   if(la.status==='ok'){
-    const by=la.by_cal||{}, top=Object.keys(by).sort((a,b)=>by[b]-by[a]).slice(0,3).map(k=>k+' '+by[k]+' 分').join(' · ');
+    const by=la.by_cal||{}, pairs=Object.keys(by).map(k=>[k,Number(by[k])||0]).filter(p=>p[1]>0).sort((a,b)=>b[1]-a[1]);
+    const tot=pairs.reduce((a,p)=>a+p[1],0);
     h+=`<div class="wrow"><span>23 点后（非睡眠）</span><span class="v num">${esc(la.total_min_day)} 分/天</span><span class="dd"></span></div>`;
-    h+=`<div class="note">前三：${esc(top||'—')}${la.shop_events?' · 深夜下单 '+la.shop_events+' 次':''}</div>`;
+    if(tot>0){
+      h+=stackSVG(pairs,tot);
+      h+=`<div class="lgd">${pairs.slice(0,5).map(([k,v])=>`<span><i style="background:var(${CAL_COLOR[k]||'--c-life'})"></i>${esc(k)} ${v} 分</span>`).join('')}</div>`;
+    }else h+=`<div class="note">这一周 23 点后没有非睡眠的事件</div>`;
+    if(la.shop_events)h+=`<div class="note">深夜下单 ${esc(la.shop_events)} 次</div>`;
   }else h+=`<div class="empty">没读到：${esc(la.reason||'深夜取数失败')}</div>`;
-  if(ph.status==='ok')h+=`<div class="wrow"><span>刷手机 22–02</span><span class="v num">${esc(ph.night_min_day)} 分/天</span><span class="dd num ${ph.nights_ok>=ph.nights_n?'':'dn'}">${esc(ph.nights_ok)}/${esc(ph.nights_n)} 夜</span></div>`;
+  if(ph.status==='ok'){
+    const pn2=Math.max(1,Math.min(Number(ph.nights_n)||7,7));
+    h+=`<div class="gr"><span class="nm">刷手机 22–02</span>`
+      +`<span class="gx">${boxesSVG(pn2,Math.min(Number(ph.nights_ok)||0,pn2))}</span>`
+      +`<span class="cur num">${esc(ph.night_min_day)} 分/天</span></div>`;
+    h+=`<div class="note">一格一夜，≤15 分钟的那几夜填实 · ${esc(ph.nights_ok)}/${esc(ph.nights_n)} 夜</div>`;
+  }
   else if(ph.status==='error')h+=`<div class="empty">刷手机没读到：${esc(ph.reason)}</div>`;
   h+=`</div>`;
 
   h+=`<div class="sec">睡 眠</div><div class="list">`;
   if(sl.status==='ok'){
+    /* (e) 躺平中位与起床中位各画一根小时间轴：本周实心点、上周空心点、v1.3 的线（23:30 / 07:30）一根淡刻度；其余三行保留数字 */
     const hm=v=>v==null?'—':(v/60).toFixed(1)+' h';
-    const rows=[['躺平中位',clockRel(sl.med_bed),clockRel(psl.med_bed)],
-                ['起床中位',clockRel(sl.med_wake),clockRel(psl.med_wake)],
-                ['睡着',hm(sl.avg_total),hm(psl.avg_total)],
-                ['睡眠效率',sl.eff==null?'—':sl.eff+'%',psl.eff==null?'—':psl.eff+'%'],
-                ['夜间清醒',sl.awake==null?'—':sl.awake+' 分',psl.awake==null?'—':psl.awake+' 分']];
-    h+=rows.map(([k,v,p])=>`<div class="wrow"><span>${k}</span><span class="v num">${esc(v)}</span><span class="dd num">${esc(p)}</span></div>`).join('');
-    h+=`<div class="note">${esc(sl.n)} 夜 · 右列是上周 · 不足 6h ${sl.n_lt6h==null?'—':esc(sl.n_lt6h)} 夜</div>`;
+    const rows=[['躺平中位',clockRel(sl.med_bed),clockRel(psl.med_bed),
+                 axisSVG(-120,120,sl.med_bed==null?null:Number(sl.med_bed),psl.med_bed==null?null:Number(psl.med_bed),-30,['22:00','02:00'])],
+                ['起床中位',clockRel(sl.med_wake),clockRel(psl.med_wake),
+                 axisSVG(360,600,sl.med_wake==null?null:Number(sl.med_wake),psl.med_wake==null?null:Number(psl.med_wake),450,['06:00','10:00'])],
+                ['睡着',hm(sl.avg_total),hm(psl.avg_total),''],
+                ['睡眠效率',sl.eff==null?'—':sl.eff+'%',psl.eff==null?'—':psl.eff+'%',''],
+                ['夜间清醒',sl.awake==null?'—':sl.awake+' 分',psl.awake==null?'—':psl.awake+' 分','']];
+    h+=rows.map(([k,v,p,ax])=>`<div class="wrow"><span>${k}</span><span class="v num">${esc(v)}</span><span class="dd num">${esc(p)}</span></div>`
+      +(ax?`<div class="axrow">${ax}</div>`:'')).join('');
+    h+=`<div class="note">${esc(sl.n)} 夜 · 右列是上周 · 不足 6h ${sl.n_lt6h==null?'—':esc(sl.n_lt6h)} 夜 · 轴上实心点是本周、空心点是上周，淡刻度是 v1.3 的 23:30 / 07:30</div>`;
   }else h+=`<div class="empty">没读到：${esc(sl.reason||'睡眠取数失败')}</div>`;
   h+=`</div>`;
 
+  /* (c) 节律按类型画：次数型＝圆点、上限/至少型＝量规、每天型＝7 格、月季型＝一个记号。
+         这一周是完整的一周（days = 7）时，次数型没达标的空心圈改朱红。 */
   h+=`<div class="sec">节 律</div><div class="list">`;
-  const RR=Array.isArray(W.rhythms)?W.rhythms:[];
+  const RR=Array.isArray(W.rhythms)?W.rhythms:[], weekDone=Number(W.days)>=7;
   if(!RR.length)h+=`<div class="empty">没读到节律。</div>`;
   for(const r of RR){const{cls,cur}=wkRhythm(r);
-    h+=`<div class="rh ${cls}"><span><i class="mk"></i></span><span class="nm">${esc(r.name)}</span><span class="cur num">${esc(cur)}</span></div>`}
+    h+=`<div class="gr ${cls}"><span class="nm">${esc(r.name)}</span>`
+      +`<span class="gx">${rhFigure(r,weekDone)}</span>`
+      +`<span class="cur num">${esc(cur)}</span></div>`}
+  h+=`<div class="note">圆点＝目标几次、量规＝目标线在竖刻度上、方格＝一格一天、单记号＝这个月/这个季</div>`;
   h+=`</div>`;
 
   h+=`<div class="sec">判 读</div><div class="list">`;
@@ -729,17 +943,37 @@ $('#v-main').addEventListener('click',ev=>{
   if(openGenes.has(id))openGenes.delete(id); else openGenes.add(id);
   gene.classList.toggle('open');
 });
+/* 今天页翻页（09-23）：‹ › 两个字符；日期行点一下回到今天；在今天视图里横向滑动也能翻一天 */
+$('#v-today').addEventListener('click',ev=>{
+  const b=ev.target.closest('.pager button');
+  if(b){goDay(Number(b.dataset.d));return}
+  if(ev.target.closest('.date[data-back]'))backToToday();
+});
+let swXY=null;
+$('#v-today').addEventListener('pointerdown',ev=>{swXY={x:ev.clientX,y:ev.clientY}},{passive:true});
+$('#v-today').addEventListener('pointercancel',()=>{swXY=null},{passive:true});
+$('#v-today').addEventListener('pointerup',ev=>{
+  const p=swXY; swXY=null;
+  if(!p||!$('#ask').hidden)return;
+  const dx=ev.clientX-p.x, dy=ev.clientY-p.y;
+  if(Math.abs(dx)<60||Math.abs(dx)<=Math.abs(dy))return;   /* 横向 ≥60px 且横向大过纵向才算翻页，其余都还给滚动 */
+  goDay(dx<0?1:-1);                                        /* 往左滑＝往后走一天（回到今天方向），往右滑＝往前翻 */
+},{passive:true});
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
   show(b.dataset.v);
   if(b.dataset.v==='week'&&!(D&&D.weekly))load();   /* 周数只在 ?tab=week 的那次请求里来，本周页不进 byTime() 自动落地 */
 }));
 show(byTime());
-let hiddenAt=0;
+/* hiddenAt 初值必须是「现在」，不能是 0：从 0 算起 Date.now()-0 永远大于 10 分钟，
+   于是页面第一次从后台转到前台（在后台标签页里打开、或从别的 App 切回来）就会被判成「离开很久」，
+   当场跳回 byTime() 的那一页——09-23 翻页实测撞到，才发现这个旧洞。 */
+let hiddenAt=Date.now();
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){hiddenAt=Date.now();return}
-  if(Date.now()-hiddenAt>10*60e3){   /* 离开超过 10 分钟再回来：按当前时段重新落地、重新判主题 */
+  if(Date.now()-hiddenAt>10*60e3){   /* 离开超过 10 分钟再回来：回到今天、按当前时段重新落地、重新判主题 */
     const h=localNow().getHours(), q=Q.get('theme');
     document.documentElement.classList.toggle('night',q?q==='night':(h>=20||h<6));
+    viewDay=null; dayErr='';
     show(byTime());
   }
   load();
