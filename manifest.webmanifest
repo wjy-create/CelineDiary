@@ -1,7 +1,7 @@
 {
   "name": "Celine Diary",
   "short_name": "Diary",
-  "start_url": "diary.html",
+  "start_url": "diary-v2.html",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
