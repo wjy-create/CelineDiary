@@ -129,6 +129,47 @@ html:not(.night) .count .n{color:var(--ink)}
 .vd .st.open{border-color:var(--accent);color:var(--accent)}
 .vd .st.applied,.vd .st.accepted{border-color:var(--ink);color:var(--ink)}
 
+/* 「这条没发生」卡（09-23 第三批）：全页唯一可写动作。长按今天页一条已经过去的事件才出现 */
+.entry[data-key]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.ask{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(22,18,15,.3);padding:0 16px calc(84px + env(safe-area-inset-bottom))}
+.ask[hidden]{display:none}
+.ask .card{width:100%;max-width:420px;background:var(--paper);border:1px solid var(--ink3);border-radius:4px;
+  padding:16px 18px 10px;animation:rise .3s cubic-bezier(.2,.7,.2,1) both}
+.ask .ttl{font-size:17px;line-height:1.6}
+.ask .tm{font-size:12px;color:var(--ink2);letter-spacing:.08em}
+.ask .q{margin:10px 0 2px;font-size:15px}
+.ask .acts{display:flex;gap:30px;justify-content:flex-end;align-items:center;min-height:38px}
+.ask .acts button{border:0;background:none;font:400 19px/1.6 var(--text);letter-spacing:.3em;color:var(--ink2);cursor:pointer;padding:2px 4px}
+.ask .acts button[data-a=del]{color:var(--accent)}
+.ask .err{color:var(--accent);font-size:13px;line-height:22px;word-break:break-all;margin-top:4px}
+.ask .done{font-size:16px;line-height:2}
+.ask .wait{font-size:13px;color:var(--ink3);letter-spacing:.1em}
+
+/* 主线页（09-23 第三批）：今日配比带 + 饿度 */
+.lede2{font-size:19px;line-height:1.8;margin:14px 0 0;letter-spacing:.03em}
+.lede2 u{text-decoration:none;color:var(--accent)}
+.lede2 .ev{display:block;font-size:13px;color:var(--ink2);letter-spacing:.08em;line-height:1.9}
+.ratio .bar{display:flex;height:14px;border-radius:2px;overflow:hidden;background:rgba(127,120,110,.14)}
+.ratio .bar i{display:block;height:100%}
+.ratio .lab{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--ink3);line-height:19px;margin-top:6px;letter-spacing:.06em}
+.ratio .lab .l{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ratio .lab .r{flex:none;color:var(--ink2)}
+.grow{display:grid;grid-template-columns:22px 1fr auto 24px;align-items:center;column-gap:10px;line-height:34px;cursor:pointer}
+.grow .ico{width:22px;height:22px;opacity:.78;margin:0;display:inline-flex}
+.grow .ico svg{width:100%;height:100%}
+.grow .nm{font-size:16px;letter-spacing:.1em}
+.grow .v{font-size:18px;color:var(--ink);white-space:nowrap}
+.grow .v sub{font-size:11px;color:var(--ink3);margin-left:2px;vertical-align:baseline;font-style:normal}
+.stamp{width:24px;height:24px;display:grid;place-items:center;font-size:12px;border:1px solid var(--ink3);color:var(--ink3);border-radius:2px;justify-self:end}
+.stamp.hungry{border-color:var(--accent);color:var(--accent)}
+.stamp.full{border-color:var(--ink);color:var(--ink)}
+.gmeta{grid-column:2/-1;color:var(--ink3);font-size:11.5px;line-height:19px;margin:-9px 0 7px;letter-spacing:.04em}
+.gmeta b{font-weight:400;color:var(--ink2)}
+.detail{display:none;padding:0 0 4px}
+.gene.open .detail{display:block}
+.gene.open .grow .nm{color:var(--accent)}
+
 /* 底 */
 .foot{margin-top:40px;color:var(--ink3);font-size:12px;line-height:20px}
 nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;gap:56px;
@@ -235,11 +276,13 @@ html[data-look=sky] nav{background:linear-gradient(to top,var(--sky-b) 60%,trans
   <section id="v-week" class="view"></section>
   <div class="foot" id="foot">读取中…</div>
 </div>
+<div class="ask" id="ask" hidden></div>
 <nav><button data-v="today">今天</button><button data-v="main">主线</button><button data-v="week">本周</button></nav>
 <script>
 /* ---------- 基础（口径与 diary.html 一致） ---------- */
 const Q=new URLSearchParams(location.search), TOKEN=Q.get('token')||'';
 const API='https://jddtovlvntdglfuezxdq.supabase.co/functions/v1/diary-panel';
+const CAL_API='https://jddtovlvntdglfuezxdq.supabase.co/functions/v1/icloud-cal-mirror';   /* 「这条没发生」手势走 ?mode=delete；token 只从本页 URL 里来，不写死 */
 const CAL_COLOR={'工作':'--c-work','关系':'--c-rel','身心':'--c-body','育儿':'--c-baby','自我投资':'--c-self','生活娱乐':'--c-life','休息':'--c-rest','时间黑洞':'--c-hole','携程':'--c-life'};
 const PERIOD_CN={day:'今天',week:'本周',month:'本月',quarter:'本季',year:'今年'};
 const NIGHT_RHYTHMS=new Set([3,15]); /* 手机不进床、睡前日记：day 周期但读数是「昨晚」 */
@@ -330,7 +373,9 @@ function entriesHTML(base,nowM){
     if(sleep&&s<12*60){label='醒来';t=en;dtxt='睡了 '+fmtDur(dur)}   /* 昨晚的觉：记醒来那一刻 */
     else if(sleep&&s>nowM)continue;
     const cls=e.recurring?'plan':(en<nowM-180?'past':'');
-    rows.push({t,html:`<div class="entry ${cls}"><span class="t num">${hhmm(Math.max(t,0))}</span><span><i class="dot" style="background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>${esc(label)}${e.recurring?'（计划）':''}</span><span class="d">${dtxt}</span></div>`});
+    /* 已经过去的非全天事件才带键——长按它＝「这条没发生」（第三批）。未来的不带，长按无反应 */
+    const d=(e.uid&&s<=nowM)?` data-key="${esc(e.uid)}" data-start="${esc(e.start)}" data-end="${esc(e.end||'')}" data-title="${esc(clean(e.title))}" data-cal="${esc(e.calendar||'')}"`:'';
+    rows.push({t,html:`<div class="entry ${cls}"${d}><span class="t num">${hhmm(Math.max(t,0))}</span><span><i class="dot" style="background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>${esc(label)}${e.recurring?'（计划）':''}</span><span class="d">${dtxt}</span></div>`});
   }
   const anchors=(D.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);return{t:hh*60+mm,label:a.label}});
   for(const a of anchors){if(a.t<nowM-30&&a.label==='健身')continue;
@@ -345,6 +390,61 @@ function budgetLevel(ln){ /* 身体预算＝昨晚的身体账，阈值取她 39
   if(!ln||ln.total_min==null)return'—';
   const bt=ln.bed_time||'00:00'; const late=(bt>='01:00'&&bt<'12:00');
   if(ln.total_min<360||late)return'低'; if(ln.total_min>=420&&(bt>='18:00'||bt<='00:30'))return'高'; return'中';
+}
+
+/* ---------- 「这条没发生」手势（09-23 第三批，拍板 #38） ----------
+   长按今天页一条**已经过去**的非全天事件 600ms → 底部一张卡 → 「删」把它从苹果日历里删掉（周期事件只删这一个实例）。
+   这是全页唯一的可写动作：没有按钮、没有输入框、不改时间、不新建（蓝图「不放」清单）。
+   根因：私教这类周期占位是按周临时排的，天然对不上；删掉没发生的那一下，就是健身传感器（拍板 #33）说的「手动 confirm」。 */
+let lpT=null, lpXY=null, lpBusy=false;
+function lpCancel(){if(lpT){clearTimeout(lpT);lpT=null}}
+document.addEventListener('pointerdown',ev=>{
+  const el=ev.target.closest&&ev.target.closest('.entry[data-key]');
+  if(!el||lpBusy||!$('#ask').hidden)return;
+  if(new Date(el.dataset.start)>localNow())return;          /* 双保险：未来的不响应 */
+  lpXY={x:ev.clientX,y:ev.clientY}; lpCancel();
+  lpT=setTimeout(()=>{lpT=null;askCard(el)},600);
+},{passive:true});
+document.addEventListener('pointermove',ev=>{
+  if(!lpT||!lpXY)return;
+  if(Math.abs(ev.clientX-lpXY.x)>10||Math.abs(ev.clientY-lpXY.y)>10)lpCancel();   /* 挪动超过 10px＝在滚页面，不是长按 */
+},{passive:true});
+['pointerup','pointercancel','scroll','visibilitychange'].forEach(t=>document.addEventListener(t,lpCancel,{passive:true}));
+function hm(iso){const d=new Date(iso);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function closeAsk(){const b=$('#ask');b.hidden=true;b.innerHTML='';b.onclick=null}
+function askCard(el){
+  const key=el.dataset.key, box=$('#ask');
+  const span=hm(el.dataset.start)+(el.dataset.end?'–'+hm(el.dataset.end):'');
+  box.innerHTML=`<div class="card"><div class="ttl">${esc(el.dataset.title)}</div>`+
+    `<div class="tm">${esc(span)}${el.dataset.cal?' · '+esc(el.dataset.cal):''}</div>`+
+    `<p class="q">这条没发生？</p><div class="acts"><button data-a="del">删</button><button data-a="keep">留</button></div></div>`;
+  box.hidden=false;
+  box.onclick=ev=>{
+    const b=ev.target.closest('button');
+    if(!b){if(ev.target===box)closeAsk();return}
+    if(b.dataset.a==='keep'){closeAsk();return}
+    doDelete(key,box);
+  };
+  if(navigator.vibrate)try{navigator.vibrate(12)}catch(e){}
+}
+async function doDelete(key,box){
+  lpBusy=true;
+  const acts=box.querySelector('.acts'); if(acts)acts.innerHTML='<span class="wait">正在删…</span>';
+  try{
+    const r=await fetch(CAL_API+'?mode=delete&token='+encodeURIComponent(TOKEN)+'&key='+encodeURIComponent(key),{cache:'no-store'});
+    let d=null; try{d=await r.json()}catch(e){}
+    if(!d||!d.ok)throw new Error((d&&d.error)||('HTTP '+r.status));
+    D.today_events=(D.today_events||[]).filter(e=>e.uid!==key);
+    try{localStorage.setItem('diary.snap',JSON.stringify(D))}catch(e){}
+    renderAll();
+    box.innerHTML='<div class="card"><div class="done">已从日历删掉</div></div>';
+    setTimeout(()=>{closeAsk();load()},2000);        /* 2 秒收起，并重新取一次数：主线页的小时数跟着变 */
+  }catch(e){
+    /* 失败不自动消失、不吞原文——她要能看见是哪一步不行 */
+    box.innerHTML='<div class="card"><div class="ttl">没删成</div><div class="err">'+esc(e.message)+'</div>'+
+      '<div class="acts"><button data-a="keep">好</button></div></div>';
+    box.onclick=ev=>{if(ev.target.closest('button')||ev.target===box)closeAsk()};
+  }finally{lpBusy=false}
 }
 
 /* ---------- 主线 ---------- */
@@ -364,42 +464,99 @@ function classify(r){
   return{cls,cur};
 }
 function fmtN(v){v=Number(v);return Math.abs(v)>=1000?v.toLocaleString():String(Math.round(v*10)/10)}
+/* 饿 / 稳 / 满（09-23 第三批口径，拍板 #38；数在 diary_snapshot().gene_stats 里算好，页面只判读）：
+     饿 = 今日 0 小时 且 距上次 ≥ 2 天。90 天内一次都没有（days_since 为 null）也算饿，排最前，距上次写「90 天以上」。
+     满 = 本周小时 ≥ 1.3 × 前四周同进度均值，且该均值 > 0。
+     其余 = 稳。
+   「前四周同进度均值」＝前 4 个完整周的周均 ×（本周已过天数 / 7），拿本周走到这里该有多少来比，不是拿整周比半周。
+   口径排除「休息」与「时间黑洞」两本日历——它们是身体行的传感器，不是投入。
+   排序：饿在前（距上次久的更前），稳居中，满在后。
+   这是状态估计，不是计划（公理一）：只说哪条饿着，不说该做什么。 */
+function geneState(x){
+  if(!x)return{k:'none',cn:'—'};
+  const t=Number(x.today_h||0), w=Number(x.week_h||0), pr=Number(x.prior4_h||0), ds=x.days_since;
+  if(t===0&&(ds==null||Number(ds)>=2))return{k:'hungry',cn:'饿'};
+  if(pr>0&&w>=1.3*pr)return{k:'full',cn:'满'};
+  return{k:'stable',cn:'稳'};
+}
+function detailHTML(rs,ls,g){
+  let gh='';
+  if(!rs.length&&!ls.length)gh+=`<div class="empty">还没有节律。</div>`;
+  for(const r of rs){
+    const {cls,cur}=classify(r), meta=[];
+    if(r.period==='day'&&!NIGHT_RHYTHMS.has(r.id))meta.push('今天');else meta.push(PERIOD_CN[r.period]||r.period);
+    if(r.days_since!=null&&r.period!=='quarter'&&r.period!=='month')meta.push('距上次 '+r.days_since+' 天');
+    if(r.streak)meta.push('连续 '+r.streak+(r.period==='day'?' 天':r.period==='week'?' 周':' 期'));
+    if(r.reason)meta.push(r.reason);
+    gh+=`<div class="rh ${cls}"><span><i class="mk"></i></span><span class="nm">${esc(r.name)}</span><span class="cur num">${esc(cur)}</span><div class="meta">${esc(meta.join(' · '))}</div></div>`;
+  }
+  for(const l of ls){
+    let cur='', extra='';
+    if(l.status==='manual'){cur='';extra=`<div class="meta">出现即完成 · 手工登记</div>`}
+    else if(l.status==='noread'||l.status==='error'){cur='没读到';extra=l.reason?`<div class="meta">${esc(l.reason)}</div>`:''}
+    else{
+      const pct=l.pct==null?null:Math.max(0,Math.min(100,Number(l.pct)));
+      cur=pct!=null?pct+'%':(l.current!=null?fmtN(l.current)+(l.unit||''):'');
+      const m=[];if(l.current!=null&&pct!=null)m.push('现在 '+fmtN(l.current)+(l.unit||''));if(l.end!=null)m.push('目标 '+fmtN(l.end)+(l.unit||''));if(l.note)m.push(l.note);
+      extra=(pct!=null?`<div class="bar"><i style="width:${pct}%"></i></div>`:'')+(m.length?`<div class="meta">${esc(m.join(' · '))}</div>`:'');
+    }
+    gh+=`<div class="ll"><span class="mk">—</span><span>${esc(l.name)}</span><span class="cur num">${esc(cur)}</span>${extra}</div>`;
+  }
+  if(g.id==='self'&&D.friction_open!=null)gh+=`<div class="rh pend"><span><i class="mk"></i></span><span class="nm">拧巴登记 open</span><span class="cur num">${D.friction_open}</span></div>`;
+  return gh;
+}
+const openGenes=new Set();
 function renderMain(){
   const R=D.rhythms||[], L=D.longlines||[];
-  const eco={E:[0,0],C:[0,0],O:[0,0]};
-  for(const r of R){if(!r.eco_tag||r.met==null||!eco[r.eco_tag])continue;eco[r.eco_tag][1]++;if(r.met)eco[r.eco_tag][0]++}
+  const hasGS=Array.isArray(D.gene_stats), GS={};
+  if(hasGS)for(const x of D.gene_stats)GS[x.gene_id]=x;
+  const rows=(D.genes||[]).map(g=>({g,x:GS[g.id],st:geneState(GS[g.id])}));
+  const rank={hungry:0,stable:1,none:1,full:2};
+  const dsOf=r=>r.x&&r.x.days_since!=null?Number(r.x.days_since):9999;
+  rows.sort((a,b)=>{
+    if(rank[a.st.k]!==rank[b.st.k])return rank[a.st.k]-rank[b.st.k];
+    if(a.st.k==='hungry'&&dsOf(a)!==dsOf(b))return dsOf(b)-dsOf(a);
+    return (a.g.sort||0)-(b.g.sort||0);
+  });
   const [yy,mo,dd]=D.today.split('-').map(Number);
-  let h=`<div class="hero"><div class="hd"><div class="date"><b>主线</b><span>${CN_MONTH[mo-1]}月${cnDay(dd)}日 · 八条线，哪条该拿起来</span></div></div>`;
+  const base=new Date(D.today+'T00:00:00+08:00'), nowM=(localNow()-base)/60000, hour=localNow().getHours();
+  const hungry=rows.filter(r=>r.st.k==='hungry');
+
+  let h=`<div class="hero"><div class="hd"><div class="date"><b>主线</b><span>${CN_MONTH[mo-1]}月${cnDay(dd)}日 · 八条线，哪条饿着</span></div></div>`;
   if(isStale(D))h+=`<div class="warn">这份数据不是今天的，正在等刷新。</div>`;
-  h+=`<div class="eco">${[['E','能量'],['C','秩序'],['O','开放']].map(([k,cn])=>`<div><div class="v num">${eco[k][1]?eco[k][0]+'/'+eco[k][1]:'—'}</div><div class="k">${cn}</div></div>`).join('')}</div></div>`;
+  if(!hasGS)h+=`<div class="warn">这份是旧版缓存，配比与饿度取不到（出口还没给 gene_stats）。</div>`;
+  let lede;
+  if(!hasGS)lede=`等这一次刷新回来再判。`;
+  else if(!hungry.length)lede=`今天<u>没有饿着的主线</u>。`;
+  else{
+    const h0=hungry[0], ds=h0.x&&h0.x.days_since!=null?h0.x.days_since+' 天':'90 天以上';
+    lede=`今天最饿的是<u>${esc(h0.g.name)}</u>，今日 0 小时，距上次 ${ds}。`;
+    if(hour>=18)lede+=`<span class="ev">今晚饿的是${hungry.slice(0,2).map(r=>esc(r.g.name)).join('、')}。</span>`;
+  }
+  h+=`<p class="lede2">${lede}</p></div>`;
+
+  /* 今日配比带：8 段，宽度＝今日小时占比，主线各自的颜色 */
+  const tot=rows.reduce((a,r)=>a+(r.x?Number(r.x.today_h||0):0),0);
+  const withH=rows.filter(r=>r.x&&Number(r.x.today_h)>0).sort((a,b)=>Number(b.x.today_h)-Number(a.x.today_h));
+  h+=`<div class="stripe ratio"><div class="bar">`+
+     withH.map(r=>`<i style="width:${(Number(r.x.today_h)/tot*100).toFixed(2)}%;background:var(${GENE_COLOR[r.g.id]||'--c-life'})"></i>`).join('')+
+     `</div><div class="lab"><span class="l">${withH.length?withH.slice(0,3).map(r=>esc(r.g.name)+' '+Number(r.x.today_h).toFixed(1)).join(' · '):'今天还没有记录到时间'}</span>`+
+     `<span class="r">已记录 ${tot.toFixed(1)} h</span></div></div>`;
+  h+=stripeHTML(base,nowM);   /* 缩略时间轴照旧，按日历上色 */
+
   h+=`<div class="sec">目 录</div>`;
-  for(const g of D.genes||[]){
+  for(const {g,x,st} of rows){
     const rs=R.filter(r=>r.gene_id===g.id), ls=L.filter(l=>l.gene_id===g.id);
-    const judged=rs.filter(r=>r.met!=null);
-    let gh=`<div class="gene" style="--g:var(${GENE_COLOR[g.id]||'--c-life'})"><div class="toc"><span class="ico ill">${GENE_ICON[g.id]||''}</span><span>${esc(g.name)}</span><span class="lead"></span><span class="r num">${judged.length?rs.filter(r=>r.met).length+' / '+rs.length:'—'}</span></div>`;
-    if(!rs.length&&!ls.length)gh+=`<div class="empty">还没有节律。</div>`;
-    for(const r of rs){
-      const {cls,cur}=classify(r), meta=[];
-      if(r.period==='day'&&!NIGHT_RHYTHMS.has(r.id))meta.push('今天');else meta.push(PERIOD_CN[r.period]||r.period);
-      if(r.days_since!=null&&r.period!=='quarter'&&r.period!=='month')meta.push('距上次 '+r.days_since+' 天');
-      if(r.streak)meta.push('连续 '+r.streak+(r.period==='day'?' 天':r.period==='week'?' 周':' 期'));
-      if(r.reason)meta.push(r.reason);
-      gh+=`<div class="rh ${cls}"><span><i class="mk"></i></span><span class="nm">${esc(r.name)}</span><span class="cur num">${esc(cur)}</span><div class="meta">${esc(meta.join(' · '))}</div></div>`;
-    }
-    for(const l of ls){
-      let cur='', extra='';
-      if(l.status==='manual'){cur='';extra=`<div class="meta">出现即完成 · 手工登记</div>`}
-      else if(l.status==='noread'||l.status==='error'){cur='没读到';extra=l.reason?`<div class="meta">${esc(l.reason)}</div>`:''}
-      else{
-        const pct=l.pct==null?null:Math.max(0,Math.min(100,Number(l.pct)));
-        cur=pct!=null?pct+'%':(l.current!=null?fmtN(l.current)+(l.unit||''):'');
-        const m=[];if(l.current!=null&&pct!=null)m.push('现在 '+fmtN(l.current)+(l.unit||''));if(l.end!=null)m.push('目标 '+fmtN(l.end)+(l.unit||''));if(l.note)m.push(l.note);
-        extra=(pct!=null?`<div class="bar"><i style="width:${pct}%"></i></div>`:'')+(m.length?`<div class="meta">${esc(m.join(' · '))}</div>`:'');
-      }
-      gh+=`<div class="ll"><span class="mk">—</span><span>${esc(l.name)}</span><span class="cur num">${esc(cur)}</span>${extra}</div>`;
-    }
-    if(g.id==='self'&&D.friction_open!=null)gh+=`<div class="rh pend"><span><i class="mk"></i></span><span class="nm">拧巴登记 open</span><span class="cur num">${D.friction_open}</span></div>`;
-    h+=gh+`</div>`;
+    const t=x?Number(x.today_h||0):0, w=x?Number(x.week_h||0):0, pr=x?Number(x.prior4_h||0):0;
+    const meta=[];
+    meta.push(`本周 <b>${w.toFixed(1)}</b> / 前四周同进度 ${pr.toFixed(1)} h`);
+    meta.push('距上次 '+(x&&x.days_since!=null?(Number(x.days_since)===0?'今天':x.days_since+' 天'):'90 天以上'));
+    if(rs.length)meta.push('节律 '+rs.filter(r=>r.met).length+'/'+rs.length);
+    h+=`<div class="gene${openGenes.has(g.id)?' open':''}" data-g="${esc(g.id)}" style="--g:var(${GENE_COLOR[g.id]||'--c-life'})">`+
+       `<div class="grow"><span class="ico ill">${GENE_ICON[g.id]||''}</span><span class="nm">${esc(g.name)}</span>`+
+       `<span class="v num">${hasGS?t.toFixed(1):'—'}<sub>h</sub></span><span class="stamp ${st.k}">${st.cn}</span>`+
+       `<div class="gmeta">${hasGS?meta.join(' · '):'小时数没读到'}</div></div>`+
+       `<div class="detail">${detailHTML(rs,ls,g)}</div></div>`;
   }
   const el=$('#v-main'); el.innerHTML=h; enter(el,'main');
 }
@@ -565,6 +722,13 @@ function renderAll(){if(!D)return;renderToday();renderMain();renderWeek()}
 function byTime(){const h=localNow().getHours();return h>=18||h<4?'today':'main'}
 function current(){const b=document.querySelector('nav button.on');return b?b.dataset.v:byTime()}
 function show(v){document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));window.scrollTo(0,0)}
+/* 主线页：点名字展开这条线的节律与长线（展开状态记在 openGenes 里，每分钟重画不会合上） */
+$('#v-main').addEventListener('click',ev=>{
+  const row=ev.target.closest('.grow'); if(!row)return;
+  const gene=row.parentElement, id=gene.dataset.g;
+  if(openGenes.has(id))openGenes.delete(id); else openGenes.add(id);
+  gene.classList.toggle('open');
+});
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{
   show(b.dataset.v);
   if(b.dataset.v==='week'&&!(D&&D.weekly))load();   /* 周数只在 ?tab=week 的那次请求里来，本周页不进 byTime() 自动落地 */
