@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f4eee3">
 <meta name="robots" content="noindex,nofollow">
@@ -29,7 +30,8 @@
    ③记号四态一处定义三处同用：● 达标 / ○ 朱红＝未达（期已过或越线）/ ○ 发丝＝还没到期 / ◌ 虚线＝没读到；本周页节律按主线分组；
    ④今天页的虚线「计划」只看开始时刻在不在未来（与是否周期无关），色带与哺乳分钟不再跳过周期事件；⑤大日期不折行，窄屏收字距。
    09-24 第五批：①换皮「天色 · 和纸」（样稿 design/2026-09-24_天色和纸_换皮.html，说明 design/2026-09-24_换皮说明.md；和纸层在本表后半）；
-   ②夜间指标借夜色的靛 --c-night（本周三个跟踪数、刷手机），朱红只留给越线；③电脑端（≥920px）左栏导航布局，见本表末尾那段。 */
+   ②夜间指标借夜色的靛 --c-night（本周三个跟踪数、刷手机），朱红只留给越线；③电脑端（≥920px）左栏导航布局，见本表末尾那段。
+   09-24 第六批（拍板 #44）：今天页事件列表 → 等比时间轴（草稿 design/2026-09-24_今天_等比时间轴.html，她已点头；CSS 在本表末尾），今日色带撤掉——时间轴本身就是一天的形状。 */
 :root{
   --paper:#f4eee3;--ink:#231e19;--ink2:#6f655a;--ink3:#a69b8d;--accent:#b3342a;--accent-soft:rgba(179,52,42,.22);
   --rule:rgba(90,110,140,.13);--margin:rgba(179,52,42,.35);--glow:none;--grain:0;
@@ -85,16 +87,7 @@ html:not(.night) .count .n{color:var(--ink)}
 /* 小节 */
 .sec{margin:34px 0 4px;font-size:14px;line-height:30px;color:var(--accent);letter-spacing:.3em}
 
-/* 今日条目 */
-.entry{display:grid;grid-template-columns:50px 1fr auto;align-items:baseline;line-height:30px;font-size:15px}
-.entry .t{font-size:14px;color:var(--ink2)}
-.entry .d{color:var(--ink3);font-size:12.5px;padding-left:8px}
-.entry .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;vertical-align:1px}
-.entry.plan{color:var(--ink3)}
-.entry.plan .dot{background:transparent!important;border:1px dashed var(--ink3)}
-.entry.mark{color:var(--accent)}.entry.mark .t{color:var(--accent)}
-.entry.now{color:var(--ink2);font-size:13px}.entry.now .t{color:var(--ink)}
-.entry.past{opacity:.55}
+/* 今日条目：09-24 起是等比时间轴，样式在本表末尾那一段 */
 .empty{color:var(--ink3);font-size:14px}
 
 /* 主线 */
@@ -129,7 +122,6 @@ html:not(.night) .count .n{color:var(--ink)}
 .vd .st.applied,.vd .st.accepted{border-color:var(--ink);color:var(--ink)}
 
 /* 「这条没发生」卡（09-23 第三批）：全页唯一可写动作。长按今天页一条已经过去的事件才出现 */
-.entry[data-key]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .ask{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;
   background:rgba(22,18,15,.3);padding:0 16px calc(84px + env(safe-area-inset-bottom))}
 .ask[hidden]{display:none}
@@ -345,11 +337,7 @@ html[data-look=sky] .figs.note3 .k{font-size:10.5px;letter-spacing:.18em;margin-
 html[data-look=sky] .dsline{color:var(--ink3)}
 html[data-look=sky] #v-week .figs .v{font-size:44px}
 
-/* ---- 条目 ---- */
-html[data-look=sky] .entry{line-height:40px;font-size:14.5px}
-html[data-look=sky] .entry .dot{width:7px;height:7px;opacity:.85}
-html[data-look=sky] .entry.mark{color:var(--ink2)}                       /* 收工 / 躺平 / 健身这几条线：字用墨二，只有时刻带一点朱红 */
-html[data-look=sky] .entry.mark .t{color:var(--accent);opacity:.8}
+/* ---- 主线目录行 ---- */
 html[data-look=sky] .toc{font-size:17px;letter-spacing:.12em;line-height:42px;font-weight:400}
 html[data-look=sky] .toc .lead{border:0}
 
@@ -543,8 +531,8 @@ svg.ill:not(.celest) circle.tick:not(.ar){fill:none;stroke:var(--gc);stroke-widt
 /* 1100px 以上才分两栏：920–1099（小笔记本、iPad 横屏）右侧只有 ~580px，今天页的时间轴会被挤成两字一行（实测），
    这一段仍用单栏（左栏导航照旧），八周柱也用手机那张 300 宽的画布。 */
 @media (min-width:1100px){
-  /* ---- 今天：左 时间轴（1fr）| 右 340px：那晚睡眠与身体 → 收工判读与轻推 → 色带 ---- */
-  #v-today.on{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:repeat(6,auto) 1fr;column-gap:28px;align-items:start}
+  /* ---- 今天：左 等比时间轴（1fr）| 右 340px：那晚睡眠与身体 → 收工判读与轻推（色带 09-24 撤掉：时间轴本身就是一天的形状） ---- */
+  #v-today.on{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:repeat(5,auto) 1fr;column-gap:28px;align-items:start}
   #v-today>.hero{display:contents}
   #v-today>.hero>.hd{grid-column:1/-1;grid-row:1}
   #v-today>.hero>:is(.note,.warn){grid-column:1/-1;grid-row:2}
@@ -552,7 +540,6 @@ svg.ill:not(.celest) circle.tick:not(.ar){fill:none;stroke:var(--gc);stroke-widt
   #v-today>.list{grid-column:1;grid-row:4/-1}
   html[data-look=sky] #v-today>.figs{grid-column:2;grid-row:4;margin-top:0}
   #v-today>.hero>.close{grid-column:2;grid-row:5;margin-top:22px;padding:0 6px}
-  html[data-look=sky] #v-today>.stripe{grid-column:2;grid-row:6}
   html[data-look=sky] #v-today .count .n{font-size:96px}
   .view.swap>.hero>*{animation:lift .56s cubic-bezier(.2,.7,.2,1) both}   /* hero 成了 contents，动效挂到它的孩子上 */
 
@@ -595,6 +582,68 @@ svg.ill:not(.celest) circle.tick:not(.ar){fill:none;stroke:var(--gc);stroke-widt
 @media (min-width:920px) and (hover:hover) and (prefers-reduced-motion:no-preference){
   html[data-look=sky] :is(.figs,.stripe,.list,.gcard,.pane){transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s}
   html[data-look=sky] :is(.figs,.stripe,.list,.gcard,.pane):hover{transform:translateY(-2px);box-shadow:var(--card-shadow-hi)}
+}
+/* ================= 今天：等比时间轴（09-24 第六批；草稿 design/2026-09-24_今天_等比时间轴.html，说明 design/2026-09-24_等比时间轴说明.md） =================
+   05:00 → 次日 02:00；手机 1h＝44px、电脑 60px。块底＝该色 22% + 左侧 3px 该色实线（与和纸层的数据笔一致）；
+   短块同画法、标题挂右侧；< 8 分钟一条 2px 色线；睡眠压成 56px；未来块整体 35% + 虚线边；朱红只给「现在」和越线。 */
+html[data-look=sky] .list.tl{padding:14px 14px 12px 6px}
+.tli{position:relative;margin:8px 0 10px}
+.tlg,.tlt{position:absolute;top:0;bottom:0}
+.tlg{left:0;width:var(--g)}
+.tlt{left:var(--g);right:0}
+.tlg .hl,.tlg .nwl{position:absolute;right:14px;transform:translateY(-50%);font-size:13px;line-height:1;color:var(--ink3);letter-spacing:.04em;white-space:nowrap}
+.tlg .nwl{right:11px;color:var(--accent);font-size:13.5px}
+.tlax{position:absolute;right:0;top:0;overflow:visible}
+.tlax path{fill:none;stroke:var(--ink3);stroke-width:1;opacity:.45}
+.tlax path.wv{opacity:.9;stroke-width:1.1;stroke-linecap:round}
+.tlt .hr{position:absolute;left:-6px;width:12px;border-top:1px solid var(--ink3);opacity:.4}   /* 整点只在轴上出一根短刻度：通栏网格线会透过半透明的块，读成删除线（电脑端实测） */
+.tlt .an{position:absolute;left:-6px;right:0;border-top:1px dashed var(--ink3);opacity:.75}
+.tlt .an.over{border-top-color:var(--accent);opacity:.9}
+.tlt .anl{position:absolute;right:2px;z-index:3;font-size:10.5px;line-height:12px;letter-spacing:.2em;color:var(--ink3);white-space:nowrap}
+.tlt .anl .num{letter-spacing:.02em;font-size:12px}
+.tlt .anl.over{color:var(--accent)}
+/* 块：填充与左侧实线画在 ::before 上，这样「计划」可以只把画淡到 35%，字不跟着淡到看不清 */
+.tb,.sb,.ln{position:absolute;box-sizing:border-box;z-index:1}
+.tb{border-radius:9px;padding:0 9px 0 12px;display:flex;align-items:center;gap:8px;overflow:hidden}
+.tb:before,.sb:before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;
+  background:color-mix(in srgb,var(--c) 22%,transparent);box-shadow:inset 3px 0 0 var(--c)}
+.tb .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:18px;letter-spacing:.06em;color:var(--ink)}
+.tb .du{flex:none;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;white-space:nowrap}
+.tb.two{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;padding-top:6px}
+.tb .mt{font-size:12px;line-height:16px;color:var(--ink3);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb em,.sl em{font-style:normal;color:var(--ink3)}
+.tb.plan:before,.sb.plan:before{opacity:.35;box-shadow:none;border:1px dashed var(--c)}
+.tb.plan .tt{color:var(--ink2)}
+.tb.zs:before{background:color-mix(in srgb,var(--c) 70%,transparent)}
+.tb.zs .tt{color:var(--ink2);letter-spacing:.08em}
+.tb.zs .zt{color:var(--ink3);letter-spacing:.02em}
+.sb{border-radius:3px}
+.ln{height:2px;border-radius:1px;background:var(--c);opacity:.9}
+.ln.plan{opacity:.35}
+.ln{z-index:2}
+.ln:after{content:"";position:absolute;left:0;right:0;top:-5px;bottom:-5px}   /* 色线只有 2px：手指落点上下各多 5px，叠在邻块边上时色线优先（小块不扩——扩了会和紧挨着的下一块抢落点，按到的是别的事；小块还能按它挂出来的标题） */
+.sl{position:absolute;right:0;z-index:2;height:14px;line-height:14px;font-size:11.5px;letter-spacing:.05em;color:var(--ink2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl .du{margin-left:6px;font-size:12px;color:var(--ink3);letter-spacing:.02em}
+.sl.plan{color:var(--ink3)}
+/* 加固①：两块之间的空隙放不下 14px 的标题（手机上 < 15px）——标题收成 12px 一行、钉在自己那一行（块中心），
+   不再往下溢出压到下一块；借到相邻大块上下沿的留白（块里的字离边 ≥4px）时，垫一层纸色，字不压在块的边线上 */
+.sl.tight{height:12px;line-height:12px;font-size:11px}
+.sl.tight .du{font-size:11px}
+.sl.bleed{background:color-mix(in srgb,var(--sky-b,var(--paper)) 86%,transparent);border-radius:6px;padding:0 6px;margin-left:-6px}   /* 只垫字那么宽（JS 给 right:auto） */
+.sl.flip{text-align:right}   /* 加固②：从右列被推出簇外的标题，改成从左起、右端收在自己小块的右沿，引线从那里接回——不在半列宽里被省略号截断 */
+.ld{position:absolute;z-index:2;overflow:visible}
+.ld path{fill:none;stroke:var(--ink3);stroke-width:1;opacity:.7;stroke-linejoin:round}
+.tlt .nw{position:absolute;left:-6px;right:0;z-index:4;border-top:1px solid var(--accent)}
+.tlt .nw:before{content:"";position:absolute;left:-3px;top:-3.5px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.tlg,.tlt .hr,.tlt .an,.tlt .anl,.tlt .nw,.ld{pointer-events:none}   /* 刻度、锚点字、现在线、引线都不接手指：按在它们上面＝按在底下那块上 */
+#v-today [data-key]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:default}
+@media (min-width:920px){
+  html[data-look=sky] .list.tl{padding:18px 22px 16px 10px}
+  .tb .tt{font-size:13.5px}
+  .sl{font-size:12px}
+  .sl.tight{font-size:11.5px}
+  html[data-look=sky] .list.tl:hover{transform:none;box-shadow:var(--card-shadow)}   /* 这张卡一千多 px 高，悬停上浮没有意义，按住 600ms 时也别晃 */
 }
 </style>
 <script>
@@ -740,9 +789,8 @@ function renderToday(){
   else figs.push([String(Math.round(babyMinOf(T))),'分','陪悠悠']);
   if(b.steps!=null&&isToday&&!evening)figs.push([b.steps.toLocaleString(),'','步数']);
   h+=`<div class="figs">${figs.slice(0,3).map(([v,u,k])=>`<div><div class="v num">${esc(v)}${u?`<sub>${u}</sub>`:''}</div><div class="k">${esc(k)}</div></div>`).join('')}</div>`;
-  h+=stripeHTML(T,base,nowM);
   h+=`<div class="sec">${isToday?'今 日':'那 天'}</div>`;
-  h+=`<div class="list">${entriesHTML(T,base,nowM)}</div>`;
+  h+=`<div class="list tl">${timelineHTML(T,base,nowM)}</div>`;
   el.innerHTML=h; enter(el,'today');
 }
 function nudgeHTML(budget,day){
@@ -750,32 +798,153 @@ function nudgeHTML(budget,day){
   const n=Number(String(day).replace(/-/g,''))||0;
   return`<p class="nudge">手机放回书桌时，说两分钟：没做完的，明天第一步。热水澡，灯调暗，${hhmm(BED_M)} 躺下。<span class="tail">${NUDGE_TAIL[n%NUDGE_TAIL.length]}</span></p>`;
 }
-/* nowM = null 就是在看过去的某一天：没有「现在」，所以不画现在刻度、也不把整天都标成 past（一整天都是过去，标了反而全灰） */
-function entriesHTML(T,base,nowM){
-  const rows=[], live=nowM!=null;
+/* ---------- 今天：等比时间轴（09-24 第六批，拍板 #44；草稿 design/2026-09-24_今天_等比时间轴.html，说明 design/2026-09-24_等比时间轴说明.md） ----------
+   她 09-24：「今天这一页的时间轴是否应该还原到真实的时间轴上，更直观可以看到每个事件的长度。」
+   一根竖轴 05:00 → 次日 02:00，手机 1 小时 44px、电脑 60px；每件事按真实起止画成块，颜色跟 CAL_COLOR。四条规则：
+   ① 短事件（块高 < 26px）块照真实比例画成左侧小块，标题挂在块右侧小字；相邻标题按 14px 让位，
+      被夹在两个大块之间放不下时整组上提；让位超过 4px 的补一根引线。不到 8 分钟只画一条 2px 色线，不放字。
+   ② 时间重叠的事件并排分列（贪心分列，n 列各占 1/n）。
+   ③ 睡眠块压成固定 56px，写「睡了 8.5 小时 · 00:18 → 08:47」；轴上那一段画成波浪＝这里的时间被压缩了。
+   ④ 未来（开始 > 现在）的块：画法同实块但整体 35%、虚线边，标题后缀「计划」。
+   没记录的时段就是空的——空白是信息，不填充。锚点是横向虚线 + 右端小字；「现在」是朱红细线，时刻写在轴左。
+   移植时补了草稿自己交代的三处勉强（说明第五节 2–4）：
+   加固① 两块之间放不下标题（手机 < 15px）：标题收成 12px、钉在自己块的中心那一行，可借相邻大块上下沿 4px 留白并垫纸色，不再往下溢出压到下一块；
+   加固② 一长一短重叠：被大块压住的短块标题挑上下两个空隙里放得下的那个；引线改成「横—竖—横」折线，沿短块自己那一列走回块边；
+      右列短块的标题被推出簇外时改从左起、右端收在小块右沿，不被半列宽截断；分列的两行块只写起止不写时长；
+   加固③ < 8 分钟的色线与同列相邻的块（大块、小块）上下至少留 4px（原来约 3px，读成那块的下划线）；两头都挤就居中。 */
+const TL={S:5*60,E:26*60,SLEEP:56,TXT:26,LINE:8,STEP:14,TWO:44,TIGHT:12,BLEED:4,CLR:4};
+function tlDim(){return DESK.matches?{ph:60,g:56,stub:76}:{ph:44,g:44,stub:52}}   /* 每小时 px / 轴宽 / 短事件小块宽 */
+const tod=m=>hhmm(((Math.round(m)%1440)+1440)%1440);
+function durCN(m){m=Math.round(m);if(m<60)return m+' 分';const h=Math.round(m/6)/10;return(Number.isInteger(h)?h:h.toFixed(1))+' 小时'}
+function timelineHTML(T,base,nowM){
+  const live=nowM!=null, {ph,g:G,stub:SW}=tlDim(), PX=ph/60;
+  /* 1. 事件：分钟数都相对当天 00:00（+08:00） */
+  const ev=[];
   for(const e of T.today_events||[]){
     if(e.all_day)continue;
-    const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15, dur=Math.max(en-s,0);
+    const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15;
     const sleep=e.calendar==='休息'&&/睡/.test(e.title||'');
-    let label=clean(e.title), t=s, dtxt=fmtDur(dur);
-    if(sleep&&s<12*60){label='醒来';t=en;dtxt='睡了 '+fmtDur(dur)}   /* 那一夜的觉：记醒来那一刻 */
-    else if(sleep&&live&&s>nowM)continue;
-    /* 09-24 E3：虚线「计划」只看开始时刻在不在未来，与是否周期无关——她的咨询 / 辅食 / 私教都是周期实例，
-       真实发生过的那些从前一律被画成虚线的「计划」，看上去像没做。没发生的她会长按删掉，删了就不在这里。 */
-    const future=live&&s>nowM;
-    const cls=future?'plan':(live&&en<nowM-180?'past':'');
-    /* 已经过去的非全天事件才带键——长按它＝「这条没发生」（第三批）。未来的不带，长按无反应 */
-    const d=(e.uid&&(!live||s<=nowM))?` data-key="${esc(e.uid)}" data-start="${esc(e.start)}" data-end="${esc(e.end||'')}" data-title="${esc(clean(e.title))}" data-cal="${esc(e.calendar||'')}"`:'';
-    rows.push({t,html:`<div class="entry ${cls}"${d}><span class="t num">${hhmm(Math.max(t,0))}</span><span><i class="dot" style="background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>${esc(label)}${future?'（计划）':''}</span><span class="d">${dtxt}</span></div>`});
+    if(sleep&&live&&s>nowM)continue;                  /* 今晚的觉还没发生，不画 */
+    if(en<=TL.S||s>=TL.E)continue;
+    ev.push({e,s,en,a:Math.max(s,TL.S),b:Math.min(Math.max(en,s+1),TL.E),sleep,future:live&&s>nowM});
   }
-  const anchors=(T.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);return{t:hh*60+mm,label:a.label}});
-  for(const a of anchors){if(a.label==='健身'&&(!live||a.t<nowM-30))continue;
-    rows.push({t:a.t+.1,html:`<div class="entry mark"><span class="t num">${hhmm(a.t)}</span><span>${esc(a.label)}</span><span></span></div>`})}
-  if(live&&nowM>0&&nowM<26*60)rows.push({t:nowM+.2,html:`<div class="entry now"><span class="t num">${hhmm(nowM)}</span><span>—— 现在 ——</span><span></span></div>`});
-  if(!rows.length)return`<div class="empty">${live?'今天':'这一天'}的日历${live?'还是':'是'}空的。</div>`;
-  return rows.sort((a,b)=>a.t-b.t).map(r=>r.html).join('');
+  /* 2. 压缩段：睡眠在轴上若比 56px 长，就压成 56px；Y() 是分段线性的「分钟 → px」 */
+  const Z=[];
+  for(const z of ev.filter(x=>x.sleep&&(x.b-x.a)*PX>TL.SLEEP).sort((p,q)=>p.a-q.a)){
+    z.zone=true; const l=Z[Z.length-1];
+    if(l&&z.a<=l.b)l.b=Math.max(l.b,z.b); else Z.push({a:z.a,b:z.b});
+  }
+  const Y=m=>{m=Math.max(TL.S,Math.min(TL.E,m));let y=(m-TL.S)*PX;
+    for(const z of Z){if(m<=z.a)break;
+      if(m>=z.b){y-=(z.b-z.a)*PX-TL.SLEEP;continue}
+      y-=(m-z.a)*PX-(m-z.a)/(z.b-z.a)*TL.SLEEP;break}
+    return y};
+  const inZone=m=>Z.some(z=>m>z.a&&m<z.b), HT=Y(TL.E);
+  /* 3. 重叠分列：按开始时刻扫，连在一起重叠的算一簇，簇内贪心放进第一条空出来的列 */
+  let cur=null;
+  for(const x of ev.slice().sort((p,q)=>p.a-q.a||q.b-p.b)){
+    if(!cur||x.a>=cur.end){cur={xs:[],end:x.b,ends:[]}}
+    let k=cur.ends.findIndex(t=>t<=x.a); if(k<0){k=cur.ends.length;cur.ends.push(x.b)}else cur.ends[k]=x.b;
+    x.col=k; x.cl=cur; cur.xs.push(x); cur.end=Math.max(cur.end,x.b);
+  }
+  for(const x of ev){x.n=x.cl.ends.length; x.y=Y(x.a); x.h=Y(x.b)-x.y; x.dur=x.en-x.s;
+    x.kind=x.zone?'sleep':(x.dur<TL.LINE?'line':(x.h<TL.TXT?'short':'tall'))}
+  /* 加固③：色线离同列相邻的块至少 CLR px。列是否相交按「第几列 / 共几列」的区间算（色线只占列首 52 / 76px，按整列算偏保守） */
+  const colOv=(p,q)=>p.col/p.n<(q.col+1)/q.n-1e-6&&q.col/q.n<(p.col+1)/p.n-1e-6;
+  for(const x of ev){if(x.kind!=='line')continue;
+    const c=x.y+x.h/2; let up=-1e9,dn=1e9;
+    for(const o of ev){if(o===x||o.kind==='line'||!colOv(o,x))continue;
+      const o0=o.y,o1=o.y+(o.kind==='short'?Math.max(o.h,3):o.h);
+      if(o1<=c)up=Math.max(up,o1); else if(o0>=c)dn=Math.min(dn,o0)}
+    const lo=up+TL.CLR, hi=dn-TL.CLR-2;
+    x.ly=lo<=hi?Math.min(Math.max(c-1,lo),hi):(up>-1e9&&dn<1e9?(up+dn)/2-1:c-1)}
+  /* 锚点：健身过了半小时就不再画（同旧列表）；01:00 这类过午夜的锚点排在当天末尾 */
+  const anchors=(T.anchors||[]).map(a=>{const[hh,mm]=a.t.split(':').map(Number);let t=hh*60+mm;if(t<TL.S)t+=1440;return{t,label:a.label}})
+    .filter(a=>a.t>=TL.S&&a.t<=TL.E&&!(a.label==='健身'&&(!live||a.t<nowM-30)));
+  const nowOK=live&&nowM>TL.S&&nowM<TL.E, nowY=nowOK?Y(nowM):null;
+  if(!ev.length&&!anchors.length)return`<div class="empty">${live?'今天':'这一天'}的日历${live?'还是':'是'}空的。</div>`;
+
+  /* 4. 短事件标题的让位：大块、睡眠块、锚点小字都是障碍；标题只能落在障碍之间的空隙里。
+        每个空隙内按期望位置（块中心）从上往下排，间距 14px；排出空隙底就整组上提，顶到空隙顶还放不下才越界（此时往下溢出，交给引线） */
+  const obs=ev.filter(x=>x.kind==='tall'||x.kind==='sleep').map(x=>[x.y,x.y+x.h,TL.BLEED])   /* 第三项＝这个障碍的边能借多少 px：块的字离边 ≥4px；锚点小字本身就是字，借 0 */
+    .concat(anchors.map(a=>[Y(a.t)-13,Y(a.t),0])).sort((p,q)=>p[0]-q[0]);
+  const gaps=[]; let top=-10, ts=0;
+  for(const[o0,o1,sf]of obs){if(o0>top)gaps.push([top,o0,ts,sf]);if(o1>top){top=o1;ts=sf}}
+  gaps.push([top,HT+10,ts,0]);
+  const labs=ev.filter(x=>x.kind==='short').map(x=>({x,c:x.y+x.h/2})).sort((p,q)=>p.c-q.c);
+  for(const L of labs){let bi=0,bd=1e9;gaps.forEach((g,i)=>{const d=L.c<g[0]?g[0]-L.c:(L.c>g[1]?L.c-g[1]:0);if(d<bd){bd=d;bi=i}});L.g=bi;L.out=bd>0}
+  /* 加固②：短块被大块压住（一长一短重叠分列）时，标题上下两个空隙都得走引线——挑放得下的那一个，别往已经挤满的空隙里塞 */
+  const room=gi=>gaps[gi][1]-gaps[gi][0]-2-labs.filter(L=>L.g===gi).length*TL.STEP;
+  for(const L of labs){if(!L.out)continue;
+    const up=gaps.findLastIndex(g=>g[1]<=L.c), dn=gaps.findIndex(g=>g[0]>=L.c); if(up<0||dn<0)continue;
+    const me=L.g, alt=me===up?dn:up; L.g=-1; if(room(me)<TL.STEP&&room(alt)>=TL.STEP)L.g=alt; else L.g=me}
+  const place=(ls,g0,g1,st)=>{let t=g0;for(const L of ls){L.hh=st;L.t=Math.max(L.c-st/2,t);t=L.t+st}
+    if(t>g1){let lim=g1;for(let i=ls.length-1;i>=0;i--){ls[i].t=Math.min(ls[i].t,lim-st);lim=ls[i].t}
+      t=g0;for(const L of ls){L.t=Math.max(L.t,t);t=L.t+st}}
+    return t<=g1+.01};
+  gaps.forEach((g,gi)=>{
+    const ls=labs.filter(L=>L.g===gi); if(!ls.length)return;
+    if(place(ls,g[0]+1,g[1]-1,TL.STEP))return;
+    /* 加固①：这个空隙放不下——标题收成 12px、借两侧块沿的留白再排一次；还放不下才往下溢出（极端密集，引线兜底） */
+    place(ls,g[0]-g[2],g[1]+g[3],TL.TIGHT);
+    for(const L of ls){L.tight=true;L.bleed=L.t<g[0]-.5||L.t+L.hh>g[1]+.5}
+  });
+
+  /* 5. 画 */
+  const keyOf=x=>(x.e.uid&&(!live||x.s<=nowM))?` data-key="${esc(x.e.uid)}" data-start="${esc(x.e.start)}" data-end="${esc(x.e.end||'')}" data-title="${esc(clean(x.e.title))}" data-cal="${esc(x.e.calendar||'')}"`:'';
+  const colL=x=>`calc(${(x.col/x.n*100).toFixed(3)}% + ${x.col>0?2:0}px)`;
+  const colW=x=>`calc(${(100/x.n).toFixed(3)}% - ${(x.col>0?2:0)+(x.col<x.n-1?2:0)}px)`;
+  let grid='',gut='',blk='',lab='';
+  for(let hr=5;hr<=26;hr++){const m=hr*60; if(inZone(m))continue; const y=Y(m);
+    grid+=`<i class="hr" style="top:${y.toFixed(1)}px"></i>`;
+    if(hr%2&&!(nowOK&&Math.abs(y-nowY)<15))gut+=`<span class="hl num" style="top:${y.toFixed(1)}px">${pad(hr%24)}</span>`}
+  /* 轴：直线段 + 压缩段的波浪 */
+  let ax='M4 0',wv='';
+  for(const z of Z){const y0=Y(z.a),y1=y0+TL.SLEEP,n=8,st=(y1-y0)/n;
+    ax+=` V${y0.toFixed(1)} M4 ${y1.toFixed(1)}`; wv+=`M4 ${y0.toFixed(1)}`;
+    for(let i=0;i<n;i++)wv+=` Q${i%2?.5:7.5} ${(y0+st*(i+.5)).toFixed(1)} 4 ${(y0+st*(i+1)).toFixed(1)}`}
+  ax+=` V${HT.toFixed(1)}`;
+  gut+=`<svg class="tlax" width="8" height="${HT.toFixed(1)}" aria-hidden="true"><path d="${ax}"/>${wv?`<path class="wv" d="${wv}"/>`:''}</svg>`;
+  for(const a of anchors){const y=Y(a.t), over=live&&nowM>a.t&&(a.label==='收工'||a.label==='躺平');   /* 过了收工 / 躺平＝越线，才上朱红 */
+    grid+=`<i class="an${over?' over':''}" style="top:${y.toFixed(1)}px"></i>`;
+    lab+=`<span class="anl${over?' over':''}" style="top:${(y-13).toFixed(1)}px">${esc(a.label)} <span class="num">${tod(a.t)}</span></span>`}
+  for(const x of ev){
+    const st=`--c:var(${CAL_COLOR[x.e.calendar]||'--c-life'});top:${x.y.toFixed(1)}px;`, k=keyOf(x), pl=x.future?' plan':'';
+    const tt=esc(clean(x.e.title))+(x.future?'<em> · 计划</em>':'');
+    if(x.kind==='sleep'){
+      blk+=`<div class="tb zs"${k} style="${st}height:${x.h.toFixed(1)}px;left:${colL(x)};width:${colW(x)}">`
+        +`<span class="tt">睡了 <span class="num">${(x.dur/60).toFixed(1)}</span> 小时<span class="zt num"> · ${tod(x.s)} → ${tod(x.en)}</span></span></div>`;
+    }else if(x.kind==='tall'){
+      const two=x.h>=TL.TWO;
+      blk+=`<div class="tb${pl}${two?' two':''}"${k} style="${st}height:${x.h.toFixed(1)}px;left:${colL(x)};width:${colW(x)}">`
+        +`<span class="tt">${tt}</span>`
+        +(two?`<span class="mt num">${tod(x.s)} – ${tod(x.en)}${x.n>1?'':' · '+durCN(x.dur)}</span>`:(x.n>1?'':`<span class="du num">${durCN(x.dur)}</span>`))+`</div>`;   /* 分列时半宽放不下时长：两行块只写起止，一行块不写 */
+    }else{
+      const w=`min(${SW}px, ${colW(x)})`;
+      if(x.kind==='line'){blk+=`<div class="ln${pl}"${k} style="${st.replace(/top:[^;]+;/,`top:${x.ly.toFixed(1)}px;`)}left:${colL(x)};width:${w}"></div>`;continue}
+      blk+=`<div class="sb${pl}"${k} style="${st}height:${Math.max(x.h,3).toFixed(1)}px;left:${colL(x)};width:${w}"></div>`;
+    }
+  }
+  for(const L of labs){const x=L.x, lc=L.t+L.hh/2, cP=x.col/x.n*100, cK=x.col>0?2:0;
+    /* 加固②：右列的短块、标题被推到整簇之外——那一行没有分列，标题改从左起、右端收在小块右沿（不然只剩半列宽，被省略号截断） */
+    const cy0=Math.min(...x.cl.xs.map(o=>o.y)), cy1=Math.max(...x.cl.xs.map(o=>o.y+o.h));
+    const flip=x.n>1&&x.col>0&&(L.t+L.hh<=cy0+.5||L.t>=cy1-.5);
+    const pl=(x.future?' plan':'')+(L.tight?' tight':'')+(L.bleed?' bleed':'')+(flip?' flip':'');
+    const pos=flip?`left:${SW+6}px;right:calc(${(100-cP).toFixed(3)}% - ${cK+SW-2}px)`
+      :`left:calc(${cP.toFixed(3)}% + ${cK+SW+6}px)`+(L.bleed?`;right:auto;max-width:calc(${(100-cP).toFixed(3)}% - ${cK+SW+6}px)`:'');
+    lab+=`<div class="sl${pl}"${keyOf(x)} style="top:${L.t.toFixed(1)}px;${pos}">${esc(clean(x.e.title))}<span class="du num">${durCN(x.dur)}</span>${x.future?'<em> · 计划</em>':''}</div>`;
+    /* 加固②：偏离自己的块超过 4px 就补引线——从小块右沿横出、竖着走到标题那一行、再横进标题（flip 时折回小块右沿，接标题的右端）；
+       沿短块自己那一列走，不穿过并排的大块，推多远都连得回去 */
+    if(Math.abs(lc-L.c)>4){const y0=Math.min(lc,L.c)-1,hh=Math.abs(lc-L.c)+2, a=(L.c-y0).toFixed(1), b=(lc-y0).toFixed(1);
+      lab+=`<svg class="ld" width="6" height="${hh.toFixed(1)}" style="top:${y0.toFixed(1)}px;left:calc(${cP.toFixed(3)}% + ${cK+SW}px)" aria-hidden="true">`
+        +`<path d="${flip?`M0 ${a} H4 V${b} H0`:`M0 ${a} H2.5 V${b} H6`}"/></svg>`}
+  }
+  let nw='';
+  if(nowOK){nw=`<i class="nw" style="top:${nowY.toFixed(1)}px"></i>`; gut+=`<span class="nwl num" style="top:${nowY.toFixed(1)}px">${hhmm(nowM)}</span>`}
+  return`<div class="tli" style="height:${HT.toFixed(1)}px;--g:${G}px"><div class="tlg">${gut}</div>`
+    +`<div class="tlt">${grid}${blk}${lab}${nw}</div></div>`;
 }
-function fmtDur(m){if(m<15)return'';if(m<60)return Math.round(m)+' 分';const h=Math.round(m/6)/10;return(Number.isInteger(h)?h:h.toFixed(1))+' 小时'}
+
 function isStale(d){try{return d.today!==new Date(Date.now()+8*3600e3).toISOString().slice(0,10)}catch(e){return false}}
 function budgetLevel(ln){ /* 身体预算＝昨晚的身体账，阈值取她 39 晚实测（08-12→09-20）：01:00 后躺平均只睡 6.24h（悬崖）；00:00–00:30 躺睡 7.56h（追平孕前）。故意不跟目标躺平线挂钩。 */
   if(!ln||ln.total_min==null)return'—';
@@ -784,13 +953,13 @@ function budgetLevel(ln){ /* 身体预算＝昨晚的身体账，阈值取她 39
 }
 
 /* ---------- 「这条没发生」手势（09-23 第三批，拍板 #38） ----------
-   长按今天页一条**已经过去**的非全天事件 600ms → 底部一张卡 → 「删」把它从苹果日历里删掉（周期事件只删这一个实例）。
+   长按今天页一条**已经过去**的非全天事件 600ms（09-24 起按在时间轴的大块 / 小块 / 色线 / 挂出来的标题上都算） → 底部一张卡 → 「删」把它从苹果日历里删掉（周期事件只删这一个实例）。
    这是全页唯一的可写动作：没有按钮、没有输入框、不改时间、不新建（蓝图「不放」清单）。
    根因：私教这类周期占位是按周临时排的，天然对不上；删掉没发生的那一下，就是健身传感器（拍板 #33）说的「手动 confirm」。 */
 let lpT=null, lpXY=null, lpBusy=false;
 function lpCancel(){if(lpT){clearTimeout(lpT);lpT=null}}
 document.addEventListener('pointerdown',ev=>{
-  const el=ev.target.closest&&ev.target.closest('.entry[data-key]');
+  const el=ev.target.closest&&ev.target.closest('#v-today [data-key]');
   if(!el||lpBusy||!$('#ask').hidden)return;
   if(new Date(el.dataset.start)>localNow())return;          /* 双保险：未来的不响应 */
   lpXY={x:ev.clientX,y:ev.clientY}; lpCancel();
@@ -1131,21 +1300,6 @@ function celestSVG(nowM,ds){
   return`<svg class="celest ill" viewBox="0 0 120 96" aria-hidden="true"><defs><clipPath id="skyclip"><rect x="0" y="0" width="120" height="${H}"/></clipPath></defs>`+
     `<g clip-path="url(#skyclip)">${body}</g>`+
     `<path pathLength="1" d="M6 ${H} H114"/><path class="dim" pathLength="1" d="M58 ${H} Q80 72 108 ${H}"/><path pathLength="1" d="M17 ${H} L16 79.5 M21.5 ${H} L22 78.5 M26 ${H} L27.5 80 M95 ${H} L96.5 79.5"/></svg>`;
-}
-/* 今日色带：05:00→次日 02:00，每件事按日历分类上色——一天的形状 */
-function stripeHTML(T,base,nowM){
-  const S=5*60,E=26*60,X=m=>Math.max(0,Math.min(100,(m-S)/(E-S)*100));
-  let seg='';
-  for(const e of T.today_events||[]){
-    if(e.all_day)continue;   /* 09-24 E3：周期实例照画 */
-    const s=(new Date(e.start)-base)/60000, en=e.end?(new Date(e.end)-base)/60000:s+15;
-    if(en<=S||s>=E)continue;
-    const a=X(s), w=Math.max(X(en)-a,.6);
-    seg+=`<i class="seg" style="left:${a}%;width:${w}%;background:var(${CAL_COLOR[e.calendar]||'--c-life'})"></i>`;
-  }
-  const marks=(T.anchors||[]).filter(a=>a.label!=='健身').map(a=>{const[hh,mm]=a.t.split(':').map(Number);return`<i class="mark" style="left:${X(hh*60+mm)}%"></i>`}).join('');
-  const now=(nowM!=null&&nowM>S&&nowM<E)?`<i class="nowtick" style="left:${X(nowM)}%"></i>`:'';
-  return`<div class="stripe"><div class="track"><div class="bar">${seg}</div>${marks}${now}</div><div class="ticks num"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span><span>01</span></div></div>`;
 }
 /* 天色：按南京（她现在的基地；回上海后改 LAT/LON，差约十分钟）当天真实日出日落，把天空关键帧钉在太阳上 */
 const LAT=32.06, LON=118.80;
