@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4eee3">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>练 · Celine Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,400&display=swap" rel="stylesheet">
+<style>
+/* 「练」页 v1 · 2026-10-30（断奶战役蓝图 v1：Life.OS/身体·断奶战役_蓝图_v1_2026-10-29.md）。
+   Diary 唯一可写的页面（W3' 修宪）：按上次预填 → 每组点一下 → 和预填不同才 ± 改 → 每个动作四个感受。没有输入框。
+   视觉沿用 Diary 纸本：纸色底、墨线、朱红只给越线（症状 / 没存上）。健身房里用：格子 ≥56px、对比要够。
+   写入失败必须当场可见：顶部状态条 + 格子回退虚线；离线先进本机待传队列，联网自动补写（蓝图可观测性②）。 */
+:root{--paper:#f4eee3;--card:#fbf7ef;--ink:#231e19;--ink2:#6f655a;--ink3:#a69b8d;--rule:rgba(35,30,25,.14);--accent:#b3342a;--accent-soft:rgba(179,52,42,.12);
+  --num:"Fraunces",Georgia,serif;--text:"LXGW WenKai Screen","Songti SC","STSong","Noto Serif SC",serif}
+@media (prefers-color-scheme:dark){:root{--paper:#14100e;--card:#1d1815;--ink:#ece3d8;--ink2:#a3978b;--ink3:#62584f;--rule:rgba(236,227,216,.12);--accent:#d8695a;--accent-soft:rgba(216,105,90,.16)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--paper)}
+body{margin:0;color:var(--ink);font:15px/1.6 var(--text);background:var(--paper);-webkit-font-smoothing:antialiased;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+.page{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 0}
+.num{font-family:var(--num);font-weight:300;font-variant-numeric:lining-nums tabular-nums}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.back{color:var(--ink2);font-size:14px;text-decoration:none}
+.sync{font-size:12.5px;color:var(--ink3);text-align:right}
+.sync.warn{color:var(--accent)}
+.seg{display:flex;margin:14px 0 6px;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.seg button{flex:1;padding:9px 0;font-size:17px;color:var(--ink2);position:relative}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.seg button i{position:absolute;top:5px;right:calc(50% - 22px);width:5px;height:5px;border-radius:50%;background:var(--accent);font-style:normal}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:10px 0 2px}
+.nav button{width:44px;height:44px;font-size:22px;color:var(--ink2)}
+.nav button[disabled]{color:var(--rule);cursor:default}
+.nav .d{text-align:center}
+.nav .d b{display:block;font-weight:500;font-size:19px;letter-spacing:.02em}
+.nav .d span{font-size:12.5px;color:var(--ink3)}
+.sum{margin:12px 0 4px;padding:10px 12px;background:var(--card);border:1px solid var(--rule);border-radius:4px}
+.sum .r{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink2)}
+.sum .r b{font-size:24px;color:var(--ink);font-weight:300}
+.sum .bar{display:flex;gap:3px;margin-top:7px}
+.sum .bar span{flex:1;height:8px;border-radius:1px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 2px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.k-eff{background:var(--ink)}.k-lite{border:1.5px solid var(--ink2)}.k-act{border:1.5px dashed var(--ink3)}.k-plan{border:1.5px dashed var(--ink2)}
+.mv{border-top:1px solid var(--rule);padding:14px 0 12px}
+.mv.red{box-shadow:inset 3px 0 0 var(--accent);padding-left:10px}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mn{font-size:16.5px;font-weight:500;line-height:1.35}
+.cue{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.comp{font-size:12.5px;color:var(--accent);margin-top:1px}
+.pill{flex:none;font-size:13px;padding:3px 9px;border-radius:3px;border:1px solid var(--rule);color:var(--ink2);white-space:nowrap}
+.pill.up{border-color:var(--ink);color:var(--ink)}
+.pill.dn{border-color:var(--accent);color:var(--accent)}
+.bd{display:flex;align-items:center;gap:12px;margin-top:10px}
+.ld{min-width:58px;font-size:26px;line-height:1}
+.ld small{display:block;font:12px/1.3 var(--text);color:var(--ink3);margin-top:3px}
+.ts{display:flex;gap:7px;flex-wrap:wrap}
+.t{min-width:56px;min-height:56px;border-radius:5px;display:flex;flex-direction:column;align-items:stretch;justify-content:center;text-align:center;position:relative;user-select:none;-webkit-user-select:none;transition:background .15s,border-color .15s}
+.t>div{font-size:18px;line-height:1.15;padding:5px 6px}
+.t>div+div{border-top:1px solid currentColor;font-size:14px;opacity:.85}
+.t sup{position:absolute;top:-9px;right:-7px;font:11px/1 var(--num);background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:2px 3px;color:var(--ink2)}
+.t.eff{background:var(--ink);color:var(--paper)}
+.t.lite{border:1.5px solid var(--ink2);color:var(--ink)}
+.t.act{border:1.5px dashed var(--ink3);color:var(--ink2)}
+.t.plan{border:1.5px dashed var(--ink2);color:var(--ink2);cursor:pointer}
+.t.done{background:var(--ink);color:var(--paper);cursor:pointer}
+.t.pend{background:var(--ink2);color:var(--paper);cursor:pointer}
+.t.fail{border:1.5px solid var(--accent);color:var(--accent);cursor:pointer}
+.t.sel{outline:2px solid var(--accent);outline-offset:2px}
+.t.add{border:1.5px dashed var(--rule);color:var(--ink3);font-size:22px;cursor:pointer}
+.ed{margin-top:12px;padding:10px 12px;background:var(--card);border:1px solid var(--rule);border-radius:4px}
+.st{display:flex;align-items:center;gap:10px;padding:4px 0}
+.st label{flex:1;font-size:13px;color:var(--ink2)}
+.st button{width:44px;height:40px;border:1px solid var(--rule);border-radius:4px;font-size:20px}
+.st b{min-width:62px;text-align:center;font-size:21px;font-weight:300}
+.ed .x{margin-top:6px;font-size:13px;color:var(--accent)}
+.fl{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.fl button{font-size:13.5px;padding:6px 12px;border:1px solid var(--rule);border-radius:999px;color:var(--ink2)}
+.fl button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.fl button.bad.on{background:var(--accent);border-color:var(--accent)}
+.fl.sym button{font-size:12.5px;padding:4px 10px}
+.fl.sym button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.note{font-size:12.5px;color:var(--ink3);margin-top:6px}
+.rule{font-size:12.5px;color:var(--ink3);border-top:1px solid var(--rule);margin-top:6px;padding-top:12px;line-height:1.7}
+.empty{padding:40px 6px;text-align:center;color:var(--ink2);font-size:14.5px;line-height:1.8}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:92vw;background:var(--accent);color:#fff;font-size:14px;padding:10px 14px;border-radius:4px;display:none;z-index:9}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top"><a class="back" id="back" href="diary-v2.html">‹ Diary</a><div class="sync" id="sync"></div></div>
+  <div class="seg" id="seg"><button data-t="back">背</button><button data-t="glute">臀</button><button data-t="core">腹</button></div>
+  <div class="nav"><button id="prev" aria-label="上一次">‹</button><div class="d" id="dlabel"></div><button id="next" aria-label="下一次">›</button></div>
+  <div id="main"></div>
+</div>
+<div class="toast" id="toast" role="alert"></div>
+<script>
+'use strict';
+/* ---------- 环境 ---------- */
+const Q=new URLSearchParams(location.search);
+const LOCAL=/^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+const API='https://jddtovlvntdglfuezxdq.supabase.co/functions/v1/lian';
+const TOKEN=(function(){const u=Q.get('token');try{if(u){localStorage.setItem('diary.token',u);return u}return localStorage.getItem('diary.token')||''}catch(e){return u||''}})();
+if(TOKEN)document.getElementById('back').href='diary-v2.html?token='+encodeURIComponent(TOKEN);
+const TYPES=['back','glute','core'],TNAME={back:'背',glute:'臀',core:'腹'};
+const FEEL=[['easy','轻松'],['ok','刚好'],['hard','吃力'],['unwell','不舒服']];
+const SYM={back:['借力','疼痛'],glute:['借力','疼痛'],core:['拱起','漏尿','坠胀','疼痛']};
+const RULE={
+  back:'加重规则：每组都用同一重量、都做到区间上限、还剩 ≥2 个 → 下次加 2.5kg；出现做不动（还剩 0–1）或借力 → 重量不变，把次数收回区间。多做不等于更有效。<br>感受按钮：轻松＝还能做 4 个以上，刚好＝还剩 2–3 个，吃力＝还剩 0–1 个。',
+  glute:'加重规则：每组都用同一重量、都做到区间上限、还剩 ≥2 个 → 下次加 2.5kg；出现做不动或借力 → 重量不变，把次数收回区间。<br>感受按钮：轻松＝还能做 4 个以上，刚好＝还剩 2–3 个，吃力＝还剩 0–1 个。',
+  core:'腹日加量顺序：先做到不晃、不拱起 → 再加时长（+15″）→ 再换更难的变体。出现任何不舒服就不加。练核心从内往外，先深层再浅层。<br>感受按钮：轻松＝还能多撑 15 秒以上，刚好＝还剩一点，吃力＝快撑不住。'};
+const fmtDay=d=>{const x=new Date(d+'T00:00:00');return (x.getMonth()+1)+'月'+x.getDate()+'日 周'+'日一二三四五六'[x.getDay()]};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const r1=v=>v==null?null:Math.round(v*10)/10;
+
+/* ---------- 本地预览：用 design/lian_sample.json，不连库 ---------- */
+let SAMPLE=null;
+async function apiGet(type){
+  if(LOCAL&&!Q.get('live')){
+    if(!SAMPLE)SAMPLE=await (await fetch('../design/lian_sample.json',{cache:'no-store'})).json();
+    const today=Q.get('today')||new Date().toLocaleDateString('sv-SE');
+    const t=type||Q.get('suggest')||'glute';
+    return {ok:true,today,suggest:Q.get('suggest')||'glute',type:t,...SAMPLE[t],sessions:[...SAMPLE[t].sessions,...(LOCAL_WRITES[t]||[])].sort((a,b)=>b.day.localeCompare(a.day))};
+  }
+  const r=await fetch(API+'?token='+encodeURIComponent(TOKEN)+(type?'&type='+type:''),{cache:'no-store'});
+  const j=await r.json().catch(()=>({ok:false,error:'HTTP '+r.status}));
+  if(!j.ok)throw new Error(j.error||('HTTP '+r.status));
+  return j;
+}
+const LOCAL_WRITES={};
+async function apiPost(body){
+  if(LOCAL&&!Q.get('live')){
+    await new Promise(r=>setTimeout(r,250));
+    if(Q.get('fail'))throw new Error('模拟失败（?fail=1）');
+    return {ok:true};
+  }
+  const r=await fetch(API+'?token='+encodeURIComponent(TOKEN),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+  const j=await r.json().catch(()=>({ok:false,error:'HTTP '+r.status}));
+  if(!j.ok)throw new Error(j.error||('HTTP '+r.status));
+  return j;
+}
+
+/* ---------- 待传队列：离线先存本机，联网补写；失败可见 ---------- */
+const OB_KEY='lian.outbox';
+let outbox=[];try{outbox=JSON.parse(localStorage.getItem(OB_KEY)||'[]')}catch(e){outbox=[]}
+let lastErr='';
+const saveOB=()=>{try{localStorage.setItem(OB_KEY,JSON.stringify(outbox))}catch(e){}paintSync()};
+function enqueue(body){
+  const key=body.action==='feel'?'feel|'+body.day+'|'+body.move_id:'set|'+body.day+'|'+body.move_id+'|'+body.set_no;
+  outbox=outbox.filter(o=>o.key!==key);outbox.push({key,body});saveOB();flush();
+}
+let flushing=false;
+async function flush(){
+  if(flushing||!outbox.length)return;flushing=true;
+  try{
+    while(outbox.length){
+      const o=outbox[0];
+      try{await apiPost(o.body);outbox.shift();lastErr='';saveOB();markSaved(o)}
+      catch(e){lastErr=String(e.message||e);paintSync();toast('没存上：'+lastErr+'。已留在手机上，联网后自动补传');markFail(o);break}
+    }
+  }finally{flushing=false;paintSync()}
+}
+setInterval(flush,15000);addEventListener('online',flush);document.addEventListener('visibilitychange',()=>{if(!document.hidden)flush()});
+function paintSync(){
+  const el=document.getElementById('sync');
+  if(!outbox.length){el.className='sync';el.textContent=TOKEN||LOCAL?'全部已存':'';return}
+  el.className='sync warn';el.textContent=outbox.length+' 项待上传'+(lastErr?' · '+lastErr:'');
+}
+let toastT=null;
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),5000)}
+
+/* ---------- 规则：有效组与下次（蓝图 W16 / W21） ---------- */
+const FEEL_RIR={easy:4,ok:2.5,hard:.5};
+function rirOf(s,feel){return s.rir!=null?Number(s.rir):(feel&&FEEL_RIR[feel.feel]!=null?FEEL_RIR[feel.feel]:null)}
+function cls(mv,s,feel,type){                /* 已发生的组画成什么：eff 有效 / lite 偏轻 / act 激活 */
+  if(mv.kind==='activation')return 'act';
+  if(type==='core'){return feel&&feel.feel==='easy'?'lite':'eff'}
+  const r=rirOf(s,feel);return r!=null&&r<=3?'eff':'lite';
+}
+function nextPlan(mv,sets,feel,type){       /* 返回 {sets:[预填], pill:{c,t}} */
+  const red=feel&&(feel.feel==='unwell'||(feel.symptoms||[]).some(x=>x!=='借力'));
+  const copy=sets.map(s=>({load_kg:s.load_kg,reps:s.reps,work_sec:s.work_sec,hold_sec:s.hold_sec}));
+  if(!sets.length)return {sets:[],pill:null};
+  if(mv.kind==='activation')return {sets:copy,pill:{c:'',t:'激活 · 不计'}};
+  if(red)return {sets:copy,pill:{c:'dn',t:'有不舒服 · 先不加'}};
+  if(type==='core'){
+    if(feel&&feel.feel==='easy'){const ss=copy.map(s=>({...s,hold_sec:s.hold_sec!=null?s.hold_sec+15:s.hold_sec,work_sec:s.hold_sec==null&&s.work_sec!=null?s.work_sec+15:s.work_sec}));
+      return {sets:ss,pill:{c:'up',t:'↑ 加 15″'}}}
+    return {sets:copy,pill:{c:'',t:feel&&feel.feel==='hard'?'→ 先做稳':'→ 保持'}};
+  }
+  const top=Math.max(...sets.map(s=>Number(s.load_kg||0)));
+  const atTop=sets.filter(s=>Number(s.load_kg||0)===top);
+  const rirs=atTop.map(s=>rirOf(s,feel));
+  const hi=mv.rep_hi,lo=mv.rep_lo,n=sets.length;
+  const unit=mv.load_label==='配重kg'?'配重 ':'';
+  const fill=(load,reps)=>Array.from({length:n},()=>({load_kg:load,reps}));
+  if(rirs.some(r=>r!=null&&r<1)||(feel&&(feel.symptoms||[]).includes('借力'))){
+    const reps=hi&&Math.max(...atTop.map(s=>s.reps||0))>hi?hi:Math.min(...atTop.map(s=>s.reps||0));
+    return {sets:fill(top,hi?Math.min(reps,hi):reps),pill:{c:'dn',t:'↓ '+unit+r1(top)+'kg 做 '+(lo&&hi?lo+'–'+hi:reps)+' 次'}};
+  }
+  if(atTop.length===n&&hi&&atTop.every(s=>(s.reps||0)>=hi)&&rirs.every(r=>r!=null&&r>=2)){
+    return {sets:fill(top+2.5,lo||hi),pill:{c:'up',t:'↑ '+unit+r1(top+2.5)+'kg'}};
+  }
+  const reps=hi?Math.min(hi,Math.max(...atTop.map(s=>s.reps||0))):atTop[0].reps;
+  return {sets:fill(top,reps),pill:{c:'',t:'→ '+unit+r1(top)+'kg'+(atTop.length<n?' 每组都到 '+reps:'')}};
+}
+
+/* ---------- 状态 ---------- */
+let D=null,TYPE=null,IDX=0;      /* IDX：0＝今天，k＝第 k 节过去的课（按日期倒序） */
+const SEL={};                    /* 今天正在改的那一格：move_id → set_no */
+const CID=()=>'t-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+function todaySession(){return D.sessions.find(s=>s.day===D.today)}
+function pastSessions(){return D.sessions.filter(s=>s.day<D.today)}
+function lastFor(moveId,before){             /* 最近一次（早于 before）练过这个动作的课 */
+  for(const s of D.sessions){if(s.day>=before)continue;const st=s.sets.filter(x=>x.move_id===moveId);if(st.length)return {s,sets:st.sort((a,b)=>a.set_no-b.set_no),feel:(s.feels||[]).find(f=>f.move_id===moveId)}}
+  return null;
+}
+
+async function load(type){
+  document.getElementById('main').innerHTML='<div class="empty">读取中…</div>';
+  try{
+    D=await apiGet(type);TYPE=D.type;IDX=0;
+    if(!type&&D.suggest)TYPE=D.suggest;
+    try{localStorage.setItem('lian.cache.'+TYPE,JSON.stringify(D))}catch(e){}
+  }catch(e){
+    let c=null;try{c=JSON.parse(localStorage.getItem('lian.cache.'+(type||'back'))||'null')}catch(_){}
+    if(c){D=c;TYPE=c.type;toast('没连上，先显示上次缓存：'+(e.message||e))}
+    else{document.getElementById('main').innerHTML='<div class="empty">没读到数据：'+esc(e.message||e)+(TOKEN?'':'<br>先从 Diary 主屏图标进来一次（带 token）')+'</div>';return}
+  }
+  paint();flush();
+}
+
+/* ---------- 画 ---------- */
+function tileHTML(s,c,mvLoad,extra=''){
+  const two=(s.reps!=null||s.work_sec!=null)&&s.hold_sec!=null;
+  const top=s.reps!=null?s.reps+(two?' 次':''):s.work_sec!=null?s.work_sec+'″':s.hold_sec!=null?s.hold_sec+'″':'';
+  const bot=two?s.hold_sec+'″':'';
+  const sup=mvLoad!=null&&s.load_kg!=null&&Number(s.load_kg)!==Number(mvLoad)?'<sup>'+r1(s.load_kg)+'</sup>':'';
+  return '<div class="t '+c+'" '+extra+'><div class="num">'+top+'</div>'+(bot?'<div class="num">'+bot+'</div>':'')+sup+'</div>';
+}
+function loadHTML(mv,load){
+  if(mv.load_label==='自重'||load==null)return '<div class="ld" style="font-size:15px">'+(mv.load_label==='自重'?'自重':'—')+'</div>';
+  return '<div class="ld num">'+r1(load)+'<small>'+(mv.load_label==='配重kg'?'kg 配重':'kg')+'</small></div>';
+}
+function paint(){
+  document.querySelectorAll('#seg button').forEach(b=>{b.classList.toggle('on',b.dataset.t===TYPE);b.innerHTML=TNAME[b.dataset.t]+(b.dataset.t===D.suggest?'<i title="今天"></i>':'')});
+  const past=pastSessions(),main=document.getElementById('main');
+  const prev=document.getElementById('prev'),next=document.getElementById('next'),dl=document.getElementById('dlabel');
+  prev.disabled=IDX>=past.length;next.disabled=IDX===0;
+  if(!D.moves.length){
+    dl.innerHTML='<b>'+TNAME[TYPE]+'</b><span>还没有动作卡</span>';
+    main.innerHTML='<div class="empty">'+TNAME[TYPE]+'还没有动作卡。<br>第一节'+TNAME[TYPE]+'课后，用一句话告诉 Claude 做了哪些动作、几组几次，<br>这里就会按它预填。</div>';return;
+  }
+  if(IDX===0)paintToday(main,dl);else paintPast(main,dl,past[IDX-1]);
+}
+function effBar(items){
+  const n=items.filter(c=>c==='eff').length;
+  return '<div class="sum"><div class="r"><span>有效组</span><b class="num">'+n+' <span style="font-size:13px;color:var(--ink3)">/ '+items.length+' 组</span></b></div><div class="bar">'+
+    items.map(c=>'<span style="'+(c==='eff'?'background:var(--ink)':c==='lite'?'border:1px solid var(--ink2)':'border:1px dashed var(--ink3)')+'"></span>').join('')+'</div></div>';
+}
+const LEG_PAST='<div class="legend"><span><i class="k-eff"></i>有效组</span><span><i class="k-lite"></i>偏轻</span><span><i class="k-act"></i>激活</span><span style="margin-left:auto">一格＝一组　格内＝次数或秒</span></div>';
+function paintPast(main,dl,s){
+  dl.innerHTML='<b>'+fmtDay(s.day)+'</b><span>'+TNAME[TYPE]+(s.with_coach?' · 私教':' · 自己练')+' · '+s.sets.length+' 组</span>';
+  const all=[];let html='';
+  for(const mv of D.moves){
+    const sets=s.sets.filter(x=>x.move_id===mv.id).sort((a,b)=>a.set_no-b.set_no);if(!sets.length)continue;
+    const feel=(s.feels||[]).find(f=>f.move_id===mv.id);
+    const main_=Math.max(...sets.map(x=>Number(x.load_kg||0)))||null;
+    const cs=sets.map(x=>cls(mv,x,feel,TYPE));all.push(...cs);
+    const isLatest=s===pastSessions()[0];
+    const plan=isLatest?nextPlan(mv,sets,feel,TYPE):null;
+    const red=feel&&(feel.feel==='unwell'||(feel.symptoms||[]).some(x=>x!=='借力'));
+    html+='<div class="mv'+(red?' red':'')+'"><div class="mh"><div><div class="mn">'+esc(mv.name)+'</div>'+(mv.cue?'<div class="cue">'+esc(mv.cue)+'</div>':'')+'</div>'+
+      (plan&&plan.pill?'<span class="pill '+plan.pill.c+'">下次 '+esc(plan.pill.t)+'</span>':'')+'</div>'+
+      '<div class="bd">'+loadHTML(mv,main_)+'<div class="ts">'+sets.map((x,i)=>tileHTML(x,cs[i],main_)).join('')+'</div></div>'+
+      (feel&&(feel.note||(feel.symptoms||[]).length)?'<div class="note">'+esc([...(feel.symptoms||[]).map(x=>'【'+x+'】'),feel.note||''].join(' '))+'</div>':'')+'</div>';
+  }
+  main.innerHTML=effBar(all)+LEG_PAST+html+'<div class="rule">'+RULE[TYPE]+'</div>';
+}
+function paintToday(main,dl){
+  const ts=todaySession();
+  const done=ts?ts.sets:[];
+  dl.innerHTML='<b>今天 · '+fmtDay(D.today)+'</b><span>'+(done.length?'已做 '+done.length+' 组':'按上次预填 · 做完一组点一下')+'</span>';
+  let html='',n=0,total=0;
+  for(const mv of D.moves){
+    const last=lastFor(mv.id,D.today);
+    const plan=last?nextPlan(mv,last.sets,last.feel,TYPE):{sets:[],pill:null};
+    const mine=done.filter(x=>x.move_id===mv.id);
+    const count=Math.max(plan.sets.length,mine.length?Math.max(...mine.map(x=>x.set_no)):0);
+    if(!count&&!last)continue;
+    const feel=ts&&(ts.feels||[]).find(f=>f.move_id===mv.id);
+    const mainLoad=plan.sets.length?plan.sets[0].load_kg:(mine[0]&&mine[0].load_kg);
+    let tiles='';
+    for(let k=1;k<=count;k++){
+      const d=mine.find(x=>x.set_no===k);const p=plan.sets[k-1]||plan.sets[plan.sets.length-1]||(mine[mine.length-1]||{});
+      const ob=outbox.find(o=>o.key==='set|'+D.today+'|'+mv.id+'|'+k);
+      const v=d||p;let c=d?(ob?(lastErr?'fail':'pend'):'done'):'plan';
+      if(SEL[mv.id]===k)c+=' sel';
+      tiles+=tileHTML(v,c,mainLoad,'data-m="'+mv.id+'" data-k="'+k+'" role="button" aria-label="第 '+k+' 组"');
+      total++;if(d)n++;
+    }
+    tiles+='<div class="t add" data-m="'+mv.id+'" data-add="1" role="button" aria-label="加一组">+</div>';
+    const red=feel&&(feel.feel==='unwell'||(feel.symptoms||[]).some(x=>x!=='借力'));
+    const feels=FEEL.map(([k,l])=>'<button data-feel="'+k+'" data-m="'+mv.id+'" class="'+(k==='unwell'?'bad ':'')+(feel&&feel.feel===k?'on':'')+'">'+l+'</button>').join('');
+    const syms=feel&&feel.feel?'<div class="fl sym">'+SYM[TYPE].map(x=>'<button data-sym="'+x+'" data-m="'+mv.id+'" class="'+((feel.symptoms||[]).includes(x)?'on':'')+'">'+x+'</button>').join('')+'</div>':'';
+    let ed='';
+    if(SEL[mv.id]){const k=SEL[mv.id],v=mine.find(x=>x.set_no===k);if(v)ed=editorHTML(mv,v)}
+    html+='<div class="mv'+(red?' red':'')+'"><div class="mh"><div><div class="mn">'+esc(mv.name)+'</div>'+(mv.cue?'<div class="cue">'+esc(mv.cue)+'</div>':'')+(mv.compensation?'<div class="comp">留意：'+esc(mv.compensation)+'</div>':'')+'</div>'+
+      (plan.pill?'<span class="pill '+plan.pill.c+'">'+esc(plan.pill.t)+'</span>':'')+'</div>'+
+      '<div class="bd">'+loadHTML(mv,mainLoad)+'<div class="ts">'+tiles+'</div></div>'+ed+
+      '<div class="fl">'+feels+'</div>'+syms+'</div>';
+  }
+  main.innerHTML='<div class="sum"><div class="r"><span>今天完成</span><b class="num">'+n+' <span style="font-size:13px;color:var(--ink3)">/ '+total+' 组</span></b></div></div>'+
+    '<div class="legend"><span><i class="k-plan"></i>预填（还没做）</span><span><i class="k-eff"></i>做完</span><span style="margin-left:auto">点做完的格子可以改数</span></div>'+html+'<div class="rule">'+RULE[TYPE]+'</div>';
+}
+function editorHTML(mv,v){
+  const rows=[];
+  if(mv.load_label!=='自重')rows.push(['load_kg',mv.load_label==='配重kg'?'配重 kg':'重量 kg',2.5]);
+  if(v.reps!=null||(mv.kind!=='core'&&mv.load_label!=='自重'))rows.push(['reps','次数',1]);
+  if(v.work_sec!=null)rows.push(['work_sec','动态 秒',5]);
+  if(v.hold_sec!=null)rows.push(['hold_sec','保持 秒',5]);
+  if(mv.load_label==='自重'&&v.reps==null&&v.work_sec==null&&v.hold_sec==null)rows.push(['hold_sec','秒',5]);
+  return '<div class="ed">'+rows.map(([f,l,st])=>'<div class="st"><label>'+l+'</label><button data-step="'+(-st)+'" data-f="'+f+'" data-m="'+mv.id+'" aria-label="减">−</button><b class="num">'+(v[f]==null?0:r1(v[f]))+'</b><button data-step="'+st+'" data-f="'+f+'" data-m="'+mv.id+'" aria-label="加">+</button></div>').join('')+
+    '<button class="x" data-undo="'+mv.id+'">撤销这一组</button></div>';
+}
+
+/* ---------- 交互 ---------- */
+function ensureToday(){let ts=todaySession();if(!ts){ts={id:'local',day:D.today,sets:[],feels:[],with_coach:true};D.sessions.unshift(ts)}return ts}
+function writeSet(mv,v){
+  enqueue({action:'set',client_id:v.client_id,day:D.today,type:TYPE,move_id:mv.id,set_no:v.set_no,load_kg:v.load_kg,reps:v.reps,work_sec:v.work_sec,hold_sec:v.hold_sec});
+}
+function markSaved(o){if(IDX===0&&D)paint()}
+function markFail(o){if(IDX===0&&D)paint()}
+let editT=null;
+document.getElementById('main').addEventListener('click',e=>{
+  const el=e.target.closest('[data-m]');if(!el||IDX!==0)return;
+  const mv=D.moves.find(m=>m.id===el.dataset.m);if(!mv)return;
+  const ts=ensureToday();
+  if(el.dataset.add){                                   /* 加一组：复制最后一组 */
+    const mine=ts.sets.filter(x=>x.move_id===mv.id);const last=lastFor(mv.id,D.today);
+    const plan=last?nextPlan(mv,last.sets,last.feel,TYPE).sets:[];
+    const k=Math.max(plan.length,mine.length?Math.max(...mine.map(x=>x.set_no)):0)+1;
+    const base=mine.sort((a,b)=>b.set_no-a.set_no)[0]||plan[plan.length-1]||{load_kg:null,reps:mv.rep_lo,work_sec:null,hold_sec:mv.load_label==='自重'?30:null};
+    const v={...base,set_no:k,client_id:CID(),move_id:mv.id};ts.sets.push(v);writeSet(mv,v);SEL[mv.id]=k;paint();return;
+  }
+  if(el.dataset.k){
+    const k=+el.dataset.k;const d=ts.sets.find(x=>x.move_id===mv.id&&x.set_no===k);
+    if(!d){                                             /* 预填 → 做完 */
+      const last=lastFor(mv.id,D.today);const plan=last?nextPlan(mv,last.sets,last.feel,TYPE).sets:[];
+      const p=plan[k-1]||plan[plan.length-1]||{};
+      const v={move_id:mv.id,set_no:k,client_id:CID(),load_kg:p.load_kg??null,reps:p.reps??null,work_sec:p.work_sec??null,hold_sec:p.hold_sec??null};
+      ts.sets.push(v);writeSet(mv,v);delete SEL[mv.id];if(navigator.vibrate)navigator.vibrate(12);paint();return;
+    }
+    SEL[mv.id]=SEL[mv.id]===k?undefined:k;if(SEL[mv.id]===undefined)delete SEL[mv.id];paint();return;   /* 做完的格子：开 / 关修改 */
+  }
+  if(el.dataset.step){
+    const k=SEL[mv.id];const v=ts.sets.find(x=>x.move_id===mv.id&&x.set_no===k);if(!v)return;
+    const f=el.dataset.f;v[f]=Math.max(0,r1((Number(v[f])||0)+Number(el.dataset.step)));paint();
+    clearTimeout(editT);editT=setTimeout(()=>writeSet(mv,v),600);return;      /* 停手 0.6 秒自动保存 */
+  }
+  if(el.dataset.undo){
+    const k=SEL[mv.id];ts.sets=ts.sets.filter(x=>!(x.move_id===mv.id&&x.set_no===k));delete SEL[mv.id];
+    enqueue({action:'unset',day:D.today,type:TYPE,move_id:mv.id,set_no:k});   /* 同一格的待传写入被这条撤销顶掉（同 key） */
+    paint();return;
+  }
+  if(el.dataset.feel){
+    ts.feels=ts.feels||[];let f=ts.feels.find(x=>x.move_id===mv.id);if(!f){f={move_id:mv.id,feel:null,symptoms:[]};ts.feels.push(f)}
+    f.feel=f.feel===el.dataset.feel?null:el.dataset.feel;if(!f.feel)f.symptoms=[];
+    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms});paint();return;
+  }
+  if(el.dataset.sym){
+    const f=(ts.feels||[]).find(x=>x.move_id===mv.id);if(!f)return;const s=el.dataset.sym;
+    f.symptoms=(f.symptoms||[]).includes(s)?f.symptoms.filter(x=>x!==s):[...(f.symptoms||[]),s];
+    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms});paint();return;
+  }
+});
+document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.t!==TYPE){for(const k in SEL)delete SEL[k];load(b.dataset.t)}});
+document.getElementById('prev').onclick=()=>{if(IDX<pastSessions().length){IDX++;paint()}};
+document.getElementById('next').onclick=()=>{if(IDX>0){IDX--;paint()}};
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)<70)return;(dx>0?document.getElementById('prev'):document.getElementById('next')).click()},{passive:true});
+if('serviceWorker' in navigator&&!LOCAL)navigator.serviceWorker.register('sw.js').catch(()=>{});
+paintSync();load(Q.get('type'));
+</script>
+</body>
+</html>
