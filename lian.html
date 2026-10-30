@@ -331,7 +331,7 @@ function editorHTML(mv,v){
   if(v.hold_sec!=null)rows.push(['hold_sec','保持 秒',5]);
   if(mv.load_label==='自重'&&v.reps==null&&v.work_sec==null&&v.hold_sec==null)rows.push(['hold_sec','秒',5]);
   return '<div class="ed">'+rows.map(([f,l,st])=>'<div class="st"><label>'+l+'</label><button data-step="'+(-st)+'" data-f="'+f+'" data-m="'+mv.id+'" aria-label="减">−</button><b class="num">'+(v[f]==null?0:r1(v[f]))+'</b><button data-step="'+st+'" data-f="'+f+'" data-m="'+mv.id+'" aria-label="加">+</button></div>').join('')+
-    '<button class="x" data-undo="'+mv.id+'">撤销这一组</button></div>';
+    '<button class="x" data-undo="1" data-m="'+mv.id+'">撤销这一组</button></div>';   /* data-m 必须带：点击总入口按 data-m 找动作，缺了就静默不响应（10-30 线上 bug） */
 }
 
 /* ---------- 交互 ---------- */
