@@ -198,6 +198,9 @@ function nextPlan(mv,sets,feel,type){       /* 返回 {sets:[预填], pill:{c,t}
       return {sets:ss,pill:{c:'up',t:'↑ 加 15″'}}}
     return {sets:copy,pill:{c:'',t:feel&&feel.feel==='hard'?'→ 先做稳':'→ 保持'}};
   }
+  if(!mv.rep_hi){                            /* 没定次数区间的（教练编排的高次数组合、递减组等）：照上次原样预填，不套加重规则 */
+    const f=feel&&feel.feel;return {sets:copy,pill:{c:'',t:'→ 照上次'+(f==='hard'?' · 上次很吃力':f==='easy'?' · 上次轻松':'')}};
+  }
   const top=Math.max(...sets.map(s=>Number(s.load_kg||0)));
   const atTop=sets.filter(s=>Number(s.load_kg||0)===top);
   const rirs=atTop.map(s=>rirOf(s,feel));
@@ -243,7 +246,8 @@ async function load(type){
 /* ---------- 画 ---------- */
 function tileHTML(s,c,mvLoad,extra=''){
   const two=(s.reps!=null||s.work_sec!=null)&&s.hold_sec!=null;
-  const top=s.reps!=null?s.reps+(two?' 次':''):s.work_sec!=null?s.work_sec+'″':s.hold_sec!=null?s.hold_sec+'″':'';
+  const sec=v=>v>=120&&v%60===0?(v/60)+'′':v+'″';   /* 180 秒显示成 3′ */
+  const top=s.reps!=null?s.reps+(two?' 次':''):s.work_sec!=null?sec(s.work_sec):s.hold_sec!=null?sec(s.hold_sec):'✓';
   const bot=two?s.hold_sec+'″':'';
   const sup=mvLoad!=null&&s.load_kg!=null&&Number(s.load_kg)!==Number(mvLoad)?'<sup>'+r1(s.load_kg)+'</sup>':'';
   return '<div class="t '+c+'" '+extra+'><div class="num">'+top+'</div>'+(bot?'<div class="num">'+bot+'</div>':'')+sup+'</div>';
