@@ -92,6 +92,14 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .note{font-size:12.5px;color:var(--ink3);margin-top:6px}
 .rule{font-size:12.5px;color:var(--ink3);border-top:1px solid var(--rule);margin-top:6px;padding-top:12px;line-height:1.7}
 .empty{padding:40px 6px;text-align:center;color:var(--ink2);font-size:14.5px;line-height:1.8}
+.tools{display:flex;justify-content:flex-end;margin:6px 0 0}
+.tools button{font-size:13px;color:var(--ink2);padding:6px 2px;border-bottom:1px dashed var(--ink3)}
+.ordrow{display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);padding:8px 0}
+.ordrow .i{width:22px;font:15px var(--num);color:var(--ink3)}
+.ordrow .n{flex:1;font-size:15.5px;line-height:1.35}
+.ordrow button{width:44px;height:40px;border:1px solid var(--rule);border-radius:4px;font-size:18px;color:var(--ink2)}
+.ordrow button[disabled]{opacity:.25;cursor:default}
+.orddone{display:block;width:100%;margin:12px 0 4px;padding:11px 0;background:var(--ink);color:var(--paper);border-radius:4px;font-size:15px}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:92vw;background:var(--accent);color:#fff;font-size:14px;padding:10px 14px;border-radius:4px;display:none;z-index:9}
 .toast.show{display:block}
 </style>
@@ -156,7 +164,7 @@ let outbox=[];try{outbox=JSON.parse(localStorage.getItem(OB_KEY)||'[]')}catch(e)
 let lastErr='';
 const saveOB=()=>{try{localStorage.setItem(OB_KEY,JSON.stringify(outbox))}catch(e){}paintSync()};
 function enqueue(body){
-  const key=body.action==='feel'?'feel|'+body.day+'|'+body.move_id:'set|'+body.day+'|'+body.move_id+'|'+body.set_no;
+  const key=body.action==='order'?'order|'+body.day+'|'+body.type:body.action==='feel'?'feel|'+body.day+'|'+body.move_id:'set|'+body.day+'|'+body.move_id+'|'+body.set_no;
   outbox=outbox.filter(o=>o.key!==key);outbox.push({key,body});saveOB();flush();
 }
 let flushing=false;
@@ -223,7 +231,22 @@ let D=null,TYPE=null,IDX=0;      /* IDX：0＝今天，k＝第 k 节过去的课
 const SEL={};                    /* 今天正在改的那一格：move_id → set_no */
 const CID=()=>'t-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
 function todaySession(){return D.sessions.find(s=>s.day===D.today)}
-function pastSessions(){return D.sessions.filter(s=>s.day<D.today)}
+function pastSessions(){return D.sessions.filter(s=>s.day<D.today&&s.sets.length)}   /* 只调过顺序、一组没做的课不算一节 */
+/* ---------- 顺序：每节课各自一份（lift_sessions.move_order，11-05 她定）----------
+   过去的课：按它自己的 move_order；没存过的按动作卡 sort_order 兜底。
+   今天：今天存过就用今天的；没有就沿用最近一节同课型的顺序；从没练过的动作排最后。 */
+let ORD=null;                    /* 调整顺序模式：正在排的 id 数组；null＝没在排 */
+function byOrder(ids,order){
+  const rank=new Map((order||[]).map((id,i)=>[id,i]));const so=new Map(D.moves.map((m,i)=>[m.id,i]));
+  return [...ids].sort((a,b)=>(rank.has(a)?rank.get(a):1e3+(so.get(a)??999))-(rank.has(b)?rank.get(b):1e3+(so.get(b)??999)));
+}
+function pastOrder(s){return byOrder([...new Set(s.sets.map(x=>x.move_id))].filter(id=>D.moves.some(m=>m.id===id)),s.move_order)}
+function todayOrder(){
+  const ts=todaySession();
+  const ref=ts&&ts.move_order&&ts.move_order.length?ts.move_order:((pastSessions()[0]||{}).move_order||(pastSessions()[0]?pastOrder(pastSessions()[0]):null));
+  return byOrder(D.moves.map(m=>m.id),ref);
+}
+const MV=id=>D.moves.find(m=>m.id===id);
 function lastFor(moveId,before){             /* 最近一次（早于 before）练过这个动作的课 */
   for(const s of D.sessions){if(s.day>=before)continue;const st=s.sets.filter(x=>x.move_id===moveId);if(st.length)return {s,sets:st.sort((a,b)=>a.set_no-b.set_no),feel:(s.feels||[]).find(f=>f.move_id===moveId)}}
   return null;
@@ -265,6 +288,7 @@ function paint(){
     dl.innerHTML='<b>'+TNAME[TYPE]+'</b><span>还没有动作卡</span>';
     main.innerHTML='<div class="empty">'+TNAME[TYPE]+'还没有动作卡。<br>第一节'+TNAME[TYPE]+'课后，用一句话告诉 Claude 做了哪些动作、几组几次，<br>这里就会按它预填。</div>';return;
   }
+  if(ORD){paintOrder(main);return}
   if(IDX===0)paintToday(main,dl);else paintPast(main,dl,past[IDX-1]);
 }
 function effBar(items){
@@ -276,7 +300,7 @@ const LEG_PAST='<div class="legend"><span><i class="k-eff"></i>有效组</span><
 function paintPast(main,dl,s){
   dl.innerHTML='<b>'+fmtDay(s.day)+'</b><span>'+TNAME[TYPE]+(s.with_coach?' · 私教':' · 自己练')+' · '+s.sets.length+' 组</span>';
   const all=[];let html='';
-  for(const mv of D.moves){
+  for(const mv of pastOrder(s).map(MV)){
     const sets=s.sets.filter(x=>x.move_id===mv.id).sort((a,b)=>a.set_no-b.set_no);if(!sets.length)continue;
     const feel=(s.feels||[]).find(f=>f.move_id===mv.id);
     const main_=Math.max(...sets.map(x=>Number(x.load_kg||0)))||null;
@@ -289,14 +313,14 @@ function paintPast(main,dl,s){
       '<div class="bd">'+loadHTML(mv,main_)+'<div class="ts">'+sets.map((x,i)=>tileHTML(x,cs[i],main_)).join('')+'</div></div>'+
       (feel&&(feel.note||(feel.symptoms||[]).length)?'<div class="note">'+esc([...(feel.symptoms||[]).map(x=>'【'+x+'】'),feel.note||''].join(' '))+'</div>':'')+'</div>';
   }
-  main.innerHTML=effBar(all)+LEG_PAST+html+'<div class="rule">'+RULE[TYPE]+'</div>';
+  main.innerHTML=effBar(all)+LEG_PAST+TOOLS+html+'<div class="rule">'+RULE[TYPE]+'</div>';
 }
 function paintToday(main,dl){
   const ts=todaySession();
   const done=ts?ts.sets:[];
   dl.innerHTML='<b>今天 · '+fmtDay(D.today)+'</b><span>'+(done.length?'已做 '+done.length+' 组':'按上次预填 · 做完一组点一下')+'</span>';
   let html='',n=0,total=0;
-  for(const mv of D.moves){
+  for(const mv of todayOrder().map(MV)){
     const last=lastFor(mv.id,D.today);
     const plan=last?nextPlan(mv,last.sets,last.feel,TYPE):{sets:[],pill:null};
     const mine=done.filter(x=>x.move_id===mv.id);
@@ -325,7 +349,20 @@ function paintToday(main,dl){
       '<div class="fl">'+feels+'</div>'+syms+'</div>';
   }
   main.innerHTML='<div class="sum"><div class="r"><span>今天完成</span><b class="num">'+n+' <span style="font-size:13px;color:var(--ink3)">/ '+total+' 组</span></b></div></div>'+
-    '<div class="legend"><span><i class="k-plan"></i>预填（还没做）</span><span><i class="k-eff"></i>做完</span><span style="margin-left:auto">点做完的格子可以改数</span></div>'+html+'<div class="rule">'+RULE[TYPE]+'</div>';
+    '<div class="legend"><span><i class="k-plan"></i>预填（还没做）</span><span><i class="k-eff"></i>做完</span><span style="margin-left:auto">点做完的格子可以改数</span></div>'+TOOLS+html+'<div class="rule">'+RULE[TYPE]+'</div>';
+}
+const TOOLS='<div class="tools"><button data-ord="open">调整顺序</button></div>';
+function visibleIds(){             /* 当前这一页画出来的动作（排序只排这些） */
+  if(IDX>0)return pastOrder(pastSessions()[IDX-1]);
+  const ts=todaySession();
+  return todayOrder().filter(id=>lastFor(id,D.today)||(ts&&ts.sets.some(x=>x.move_id===id)));
+}
+function paintOrder(main){
+  main.innerHTML='<div class="legend" style="margin-top:12px">只改这一节课的顺序，别的课不受影响</div>'+
+    ORD.map((id,i)=>'<div class="ordrow"><span class="i">'+(i+1)+'</span><span class="n">'+esc(MV(id).name)+'</span>'+
+      '<button data-ord="up" data-i="'+i+'" aria-label="上移"'+(i?'':' disabled')+'>↑</button>'+
+      '<button data-ord="dn" data-i="'+i+'" aria-label="下移"'+(i<ORD.length-1?'':' disabled')+'>↓</button></div>').join('')+
+    '<button class="orddone" data-ord="done">完成</button>';
 }
 function editorHTML(mv,v){
   const rows=[];
@@ -339,14 +376,28 @@ function editorHTML(mv,v){
 }
 
 /* ---------- 交互 ---------- */
+function snapOrder(){const o=todayOrder(),ts=todaySession();if(ts&&!ts.move_order)ts.move_order=o;return o}   /* 新课第一下把当时的顺序存下来；函数端只在这节课还没顺序时收 */
 function ensureToday(){let ts=todaySession();if(!ts){ts={id:'local',day:D.today,sets:[],feels:[],with_coach:true};D.sessions.unshift(ts)}return ts}
 function writeSet(mv,v){
-  enqueue({action:'set',client_id:v.client_id,day:D.today,type:TYPE,move_id:mv.id,set_no:v.set_no,load_kg:v.load_kg,reps:v.reps,work_sec:v.work_sec,hold_sec:v.hold_sec});
+  enqueue({action:'set',client_id:v.client_id,day:D.today,type:TYPE,move_id:mv.id,set_no:v.set_no,load_kg:v.load_kg,reps:v.reps,work_sec:v.work_sec,hold_sec:v.hold_sec,order:snapOrder()});
 }
 function markSaved(o){if(IDX===0&&D)paint()}
 function markFail(o){if(IDX===0&&D)paint()}
 let editT=null;
 document.getElementById('main').addEventListener('click',e=>{
+  const ob=e.target.closest('[data-ord]');
+  if(ob){
+    const a=ob.dataset.ord;
+    if(a==='open'){for(const k in SEL)delete SEL[k];ORD=visibleIds();if(ORD.length<2){ORD=null;toast('这一节只有一个动作，不用排');return}paint();return}
+    if(a==='up'||a==='dn'){const i=+ob.dataset.i,j=a==='up'?i-1:i+1;if(j<0||j>=ORD.length)return;[ORD[i],ORD[j]]=[ORD[j],ORD[i]];paint();return}
+    if(a==='done'){
+      const s=IDX===0?ensureToday():pastSessions()[IDX-1];
+      const full=byOrder(D.moves.map(m=>m.id),ORD);        /* 画出来的按她排的，其余动作跟在后面 */
+      s.move_order=full;ORD=null;
+      enqueue({action:'order',day:s.day,type:TYPE,order:full});paint();return;
+    }
+    return;
+  }
   const el=e.target.closest('[data-m]');if(!el||IDX!==0)return;
   const mv=D.moves.find(m=>m.id===el.dataset.m);if(!mv)return;
   const ts=ensureToday();
@@ -380,17 +431,17 @@ document.getElementById('main').addEventListener('click',e=>{
   if(el.dataset.feel){
     ts.feels=ts.feels||[];let f=ts.feels.find(x=>x.move_id===mv.id);if(!f){f={move_id:mv.id,feel:null,symptoms:[]};ts.feels.push(f)}
     f.feel=f.feel===el.dataset.feel?null:el.dataset.feel;if(!f.feel)f.symptoms=[];
-    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms});paint();return;
+    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms,order:snapOrder()});paint();return;
   }
   if(el.dataset.sym){
     const f=(ts.feels||[]).find(x=>x.move_id===mv.id);if(!f)return;const s=el.dataset.sym;
     f.symptoms=(f.symptoms||[]).includes(s)?f.symptoms.filter(x=>x!==s):[...(f.symptoms||[]),s];
-    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms});paint();return;
+    enqueue({action:'feel',day:D.today,type:TYPE,move_id:mv.id,feel:f.feel,symptoms:f.symptoms,order:snapOrder()});paint();return;
   }
 });
-document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.t!==TYPE){for(const k in SEL)delete SEL[k];load(b.dataset.t)}});
-document.getElementById('prev').onclick=()=>{if(IDX<pastSessions().length){IDX++;paint()}};
-document.getElementById('next').onclick=()=>{if(IDX>0){IDX--;paint()}};
+document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(b&&b.dataset.t!==TYPE){for(const k in SEL)delete SEL[k];ORD=null;load(b.dataset.t)}});
+document.getElementById('prev').onclick=()=>{if(IDX<pastSessions().length){IDX++;ORD=null;paint()}};
+document.getElementById('next').onclick=()=>{if(IDX>0){IDX--;ORD=null;paint()}};
 let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
 document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)<70)return;(dx>0?document.getElementById('prev'):document.getElementById('next')).click()},{passive:true});
 if('serviceWorker' in navigator&&!LOCAL)navigator.serviceWorker.register('sw.js').catch(()=>{});
