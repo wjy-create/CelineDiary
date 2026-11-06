@@ -120,6 +120,18 @@ html:not(.night) .count .n{color:var(--ink)}
   font-size:11px;letter-spacing:.2em;border:1px solid var(--ink3);border-radius:3px;color:var(--ink3)}
 .vd .st.open{border-color:var(--accent);color:var(--accent)}
 .vd .st.applied,.vd .st.accepted{border-color:var(--ink);color:var(--ink)}
+/* 本周页顶部的判读（11-06）：AI 每周一写进 weekly_verdicts 的原文，只读。挂在 hero 里，不占 #v-week 的子元素序号（电脑端网格靠序号排） */
+.wv{margin:14px 0 0;padding:2px 0 2px 24px;border-left:1px solid var(--ink3);counter-reset:wv}
+.wv .f{position:relative;margin:4px 0;font-size:15px;line-height:1.75;letter-spacing:.02em;counter-increment:wv}
+.wv .f::before{content:counter(wv);position:absolute;left:-15px;font:12px/1.75 var(--num);color:var(--ink3);top:1px}
+.wv .p{margin:10px 0 4px;font-size:14px;line-height:1.75;color:var(--ink2)}
+.wv .p b{font-weight:400;letter-spacing:.24em;color:var(--ink);margin-right:6px;font-size:12px}
+.wv .st{display:inline-block;margin-left:8px;padding:0 8px;line-height:18px;vertical-align:1px;font-size:11px;letter-spacing:.2em;border:1px solid var(--ink3);border-radius:999px;color:var(--ink3)}
+.wv .st.open{border-color:var(--accent);color:var(--accent)}
+.wv .st.applied,.wv .st.accepted{border-color:var(--ink);color:var(--ink)}
+.wv.none{font-size:13px;color:var(--ink3);letter-spacing:.08em;border-left-style:dashed}
+.fdays{margin:2px 0 6px}
+.fdays svg{display:block;width:100%;max-width:300px;height:auto}
 
 /* 「这条没发生」卡（09-23 第三批）：全页唯一可写动作。长按今天页一条已经过去的事件才出现 */
 .ask{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;
@@ -562,19 +574,24 @@ svg.ill:not(.celest) circle.tick:not(.ar){fill:none;stroke:var(--gc);stroke-widt
   #v-gene .hero8 svg .tx{font-size:12px}
   #v-gene .hero8 svg .txs{font-size:11px}
 
-  /* ---- 本周：三个跟踪数整宽在最上；下面两栏瀑布——左 时间去哪了 / 深夜 / 睡眠 / 判读，右 节律（最长的一块） ---- */
-  #v-week.on:has(>.figs){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(11,auto) 1fr;column-gap:28px;align-items:start}
+  /* ---- 本周：三个跟踪数整宽在最上；下面两栏瀑布——左 时间 / 碎 / 深夜 / 黑洞 / 睡眠 / 身体，右 节律（最长的一块） ---- */
+  #v-week.on:has(>.figs){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(15,auto) 1fr;column-gap:28px;align-items:start}
   #v-week.on:has(>.figs)>*{grid-column:1/-1}
+  /* 11-06：左栏 时间去哪了 / 白天的碎 / 深夜 / 时间黑洞 / 睡眠 / 身体（子元素 4–15），右栏 节律（16–17）；判读在 hero 里整宽 */
   #v-week.on:has(>.figs)>:nth-child(4){grid-column:1;grid-row:4}
   #v-week.on:has(>.figs)>:nth-child(5){grid-column:1;grid-row:5}
   #v-week.on:has(>.figs)>:nth-child(6){grid-column:1;grid-row:6}
   #v-week.on:has(>.figs)>:nth-child(7){grid-column:1;grid-row:7}
   #v-week.on:has(>.figs)>:nth-child(8){grid-column:1;grid-row:8}
   #v-week.on:has(>.figs)>:nth-child(9){grid-column:1;grid-row:9}
-  #v-week.on:has(>.figs)>:nth-child(10){grid-column:2;grid-row:4}
-  #v-week.on:has(>.figs)>:nth-child(11){grid-column:2;grid-row:5/-1}
-  #v-week.on:has(>.figs)>:nth-child(12){grid-column:1;grid-row:10}
-  #v-week.on:has(>.figs)>:nth-child(13){grid-column:1;grid-row:11}
+  #v-week.on:has(>.figs)>:nth-child(10){grid-column:1;grid-row:10}
+  #v-week.on:has(>.figs)>:nth-child(11){grid-column:1;grid-row:11}
+  #v-week.on:has(>.figs)>:nth-child(12){grid-column:1;grid-row:12}
+  #v-week.on:has(>.figs)>:nth-child(13){grid-column:1;grid-row:13}
+  #v-week.on:has(>.figs)>:nth-child(14){grid-column:1;grid-row:14}
+  #v-week.on:has(>.figs)>:nth-child(15){grid-column:1;grid-row:15}
+  #v-week.on:has(>.figs)>:nth-child(16){grid-column:2;grid-row:4}
+  #v-week.on:has(>.figs)>:nth-child(17){grid-column:2;grid-row:5/-1}
   html[data-look=sky] #v-week .figs .v{font-size:64px}
   html[data-look=sky] #v-week>.figs{padding:24px 28px 22px}
   #v-week>.figs .bx svg{height:13px;width:auto}                    /* 小方格跟着 64px 的大数字放大一档 */
@@ -1441,13 +1458,41 @@ function wkRhythm(r,over){   /* 达标墨色、未达（期已过）朱红、没
     :fmtN(r.current)+' / '+fmtN(r.target)+(r.unit&&r.unit!=='次'?' '+r.unit:'');
   return{cls,cur};
 }
+/* (f) 七天小柱（11-06）：一格＝一段工作日历事件，从基线往上码；>8 段画一个朱红小箭头；还没到的那天只画虚线底 */
+function fragDaysSVG(daily,d0){
+  const P=30,S=7,G=2,N=8,base=8*(S+G)+4,W=7*P,H=base+14, by={};
+  for(const x of(daily||[]))by[x.day]=Number(x.work_ev)||0;
+  const D0=new Date(String(d0)+'T12:00:00+08:00');let s=`<path class="hair" d="M0 ${base+.5} H${W}"/>`;
+  for(let i=0;i<7;i++){
+    const dt=new Date(D0.getTime()+i*864e5), key=dt.toISOString().slice(0,10), cx=i*P+P/2, x=cx-S/2;
+    if(!(key in by)){s+=`<rect class="hair" x="${x+.5}" y="${base-S+.5}" width="${S-1}" height="${S-1}" rx="1.5" stroke-dasharray="1.6 1.6"/>`}
+    else{const n=by[key];
+      for(let k=0;k<Math.min(n,N);k++)s+=`<rect class="dot" x="${x}" y="${base-(k+1)*(S+G)+G}" width="${S}" height="${S}" rx="1.5"/>`;
+      if(n>N)s+=`<path class="ar tick" d="M${cx-3} ${base-N*(S+G)-1} l3 -4 l3 4"/>`;
+      s+=`<text class="txs" x="${cx}" y="${base-Math.min(n,N)*(S+G)-(n>N?7:3)}" text-anchor="middle">${n||''}</text>`}
+    s+=`<text class="tx" x="${cx}" y="${H-1}" text-anchor="middle">${'一二三四五六日'[i]}</text>`;
+  }
+  return SVw(W,H,s);
+}
+/* 判读（11-06 置顶）：finding 原文 + proposal 一句 + 状态印章；只读。表空 → 一行「本周判读未生成」，降级看得见 */
+function verdictTop(W){
+  const V=W.verdicts;
+  if(V&&!Array.isArray(V))return`<div class="wv none">本周判读没读到：${esc(V.reason||'取数失败')}</div>`;
+  const F=(V||[]).filter(v=>v.kind==='finding'), Pp=(V||[]).filter(v=>v.kind==='proposal');
+  if(!F.length&&!Pp.length){
+    const hb=W.heartbeats&&W.heartbeats.weekly_review;
+    return`<div class="wv none">本周判读未生成 · ${hb?'判读任务上次跑完 '+esc(mdSlash(String(hb).slice(0,10)))+' '+new Date(hb).toTimeString().slice(0,5):'判读任务还没有心跳'}</div>`;
+  }
+  return`<div class="wv">${F.map(v=>`<p class="f">${esc(v.text)}</p>`).join('')}`
+    +Pp.map(v=>`<p class="p"><b>改判建议</b>${esc(v.text)}<i class="st ${esc(v.status)}">${esc(VD_ST[v.status]||v.status)}</i></p>`).join('')+`</div>`;
+}
 function renderWeek(){
   const el=$('#v-week'); if(!el)return;
   const W=D&&D.weekly;
   if(!W){el.innerHTML=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>这一周的数还没取到</span></div></div></div><div class="list"><div class="empty">正在读这一周…</div></div>`;return}
   const pr=W.prior||{}, th=W.three||{}, pth=pr.three||{}, sl=W.sleep||{}, psl=pr.sleep||{};
   const n=sl.n||7, pn=psl.n||7, dd=W.days||7;
-  let h=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>${mdCN(W.week_start)} – ${mdCN(W.week_end)}</span></div></div></div>`;
+  let h=`<div class="hero"><div class="hd"><div class="date"><b>本周</b><span>${mdCN(W.week_start)} – ${mdCN(W.week_end)}</span></div></div>${verdictTop(W)}</div>`;
   /* (b) 三个跟踪数各配一行小方格：一格一夜，数出来的那几夜填实。
          ≤00:00 是往好里数，填墨；过 01:00 与 23 点后做项目是往坏里数，填朱红——跟全页「朱红＝越线」的用法一致。 */
   const big=[['≤ 00:00',th.n_le_0000,n,pth.n_le_0000,pn,false],
@@ -1474,6 +1519,19 @@ function renderWeek(){
   }else h+=`<div class="empty">没读到：${esc((W.per_cal&&W.per_cal.reason)||'时间段取数失败')}</div>`;
   h+=`</div>`;
 
+  /* (f) 白天的碎（11-06）：工作日历每天几段画成七根小柱，下面三行数 vs 前四周。满的是切换不是工时，所以看段数和每段时长 */
+  const fr=W.frag||{}, fp=fr.prior4||{};
+  h+=`<div class="sec">白 天 的 碎</div><div class="list">`;
+  if(fr.status==='ok'){
+    h+=`<div class="fdays" style="--g:var(--c-work)">${fragDaysSVG(fr.daily,W.week_start)}</div>`;
+    const fv=v=>v==null?'—':fmtN(v);
+    h+=[['工作 段/天',fr.work_ev_day,fp.work_ev_day,''],['工作 每段',fr.work_avg_min,fp.work_avg_min,' 分'],['工作 线数',fr.work_threads,fp.work_threads,' 条'],
+        ['全天 段/天',fr.ev_day,fp.ev_day,''],['全天 每段',fr.avg_min,fp.avg_min,' 分']]
+      .map(([k,v,p,u])=>`<div class="wrow"><span>${k}</span><span class="v num">${fv(v)}${v==null?'':u}</span><span class="dd num">${fv(p)}${p==null?'':u}</span></div>`).join('');
+    h+=`<div class="note">柱上一格＝工作日历的一段 · 右列是前四周 · 全天＝除睡眠外的所有日历 · 工作线＝标题首词去重</div>`;
+  }else h+=`<div class="empty">没读到：${esc(fr.reason||'数层还没有这一段')}</div>`;
+  h+=`</div>`;
+
   /* (d) 深夜：by_cal 画一根按日历上色的堆叠条（分钟/天）+ 一行小图例；刷手机那行加 7 格（达标夜填墨） */
   const la=W.late||{}, ph=W.phone||{};
   h+=`<div class="sec">深 夜</div><div class="list">`;
@@ -1497,6 +1555,19 @@ function renderWeek(){
   else if(ph.status==='error')h+=`<div class="empty">刷手机没读到：${esc(ph.reason)}</div>`;
   h+=`</div>`;
 
+  /* (g) 时间黑洞分时段（11-06）：按开始时刻分五段，一格＝10 分钟/天，竖刻度＝前四周，与「时间去哪了」同一支笔 */
+  const ho=W.hole_daypart||{};
+  h+=`<div class="sec">时 间 黑 洞</div><div class="list">`;
+  if(ho.status==='ok'){
+    h+=`<div class="wrow"><span>一天合计</span><span class="v num">${esc(ho.total_min_day)} 分/天</span><span class="dd num">${esc(ho.prior4_total_min_day)} 分</span></div>`;
+    for(const b of(ho.bands||[])){const v=Number(b.min_day)||0, p=Number(b.prior4_min_day)||0, dd=v-p;
+      h+=`<div class="gr" style="--g:var(--c-night)"><span class="nm">${esc(b.band)}${b.band==='其余'?'':' 点'}</span>`
+        +`<span class="gx" title="${v} 分/天 · 前四周 ${p}">${cellsSVG(v/10,p/10)}</span>`
+        +`<span class="dd num ${dd>0?'up':dd<0?'dn':''}">${dd>0?'+':dd<0?'−':'±'}${Math.abs(dd)}</span></div>`}
+    h+=`<div class="note">一格＝10 分钟/天，最多 9 格 · 竖刻度＝前四周，右列是差值（分）· 按开始时刻归段，其余＝17–20 与 01–06 点</div>`;
+  }else h+=`<div class="empty">没读到：${esc(ho.reason||'数层还没有这一段')}</div>`;
+  h+=`</div>`;
+
   h+=`<div class="sec">睡 眠</div><div class="list">`;
   if(sl.status==='ok'){
     /* (e) 躺平中位与起床中位各画一根小时间轴：本周实心点、上周空心点、v1.3 的线（23:30 / 07:30）一根淡刻度；其余三行保留数字 */
@@ -1512,6 +1583,22 @@ function renderWeek(){
       +(ax?`<div class="axrow">${ax}</div>`:'')).join('');
     h+=`<div class="note">${esc(sl.n)} 夜 · 右列是上周 · 不足 6h ${sl.n_lt6h==null?'—':esc(sl.n_lt6h)} 夜 · 轴上实心点是本周、空心点是上周，淡刻度是 v1.3 的 23:30 / 07:30</div>`;
   }else h+=`<div class="empty">没读到：${esc(sl.reason||'睡眠取数失败')}</div>`;
+  h+=`</div>`;
+
+  /* (h) 身体（11-06）：HRV 与静息心率，本周均值实心点、前四周均值空心点，各一根小轴。单周只算信号 */
+  const bo=W.body||{};
+  h+=`<div class="sec">身 体</div><div class="list">`;
+  if(bo.status==='ok'){
+    const n2=v=>v==null?null:Number(v), lo=(a,b,m)=>Math.floor((Math.min(a??b,b??a)-m)), hi=(a,b,m)=>Math.ceil((Math.max(a??b,b??a)+m));
+    const hl=lo(n2(bo.hrv),n2(bo.prior4_hrv),6), hh=hi(n2(bo.hrv),n2(bo.prior4_hrv),6);
+    const rl=lo(n2(bo.rhr),n2(bo.prior4_rhr),5), rh=hi(n2(bo.rhr),n2(bo.prior4_rhr),5);
+    h+=`<div class="wrow"><span>HRV</span><span class="v num">${bo.hrv==null?'—':esc(bo.hrv)+' ms'}</span><span class="dd num">${bo.prior4_hrv==null?'—':esc(bo.prior4_hrv)}</span></div>`;
+    if(bo.hrv!=null||bo.prior4_hrv!=null)h+=`<div class="axrow">${axisSVG(hl,hh,n2(bo.hrv),n2(bo.prior4_hrv),null,[hl+' ms',hh+' ms'])}</div>`;
+    h+=`<div class="wrow"><span>静息心率</span><span class="v num">${bo.rhr==null?'—':esc(bo.rhr)+' bpm'}</span><span class="dd num">${bo.prior4_rhr==null?'—':esc(bo.prior4_rhr)}</span></div>`;
+    if(bo.rhr!=null||bo.prior4_rhr!=null)h+=`<div class="axrow">${axisSVG(rl,rh,n2(bo.rhr),n2(bo.prior4_rhr),null,[rl+' bpm',rh+' bpm'])}</div>`;
+    h+=`<div class="note">${esc(bo.n)} 天有读数 · 右列与空心点是前四周均值 · HRV 低、心率高都指向负荷偏高；单周只算信号</div>`;
+  }else if(bo.status==='noread')h+=`<div class="empty">这一周手表没读到 HRV / 心率</div>`;
+  else h+=`<div class="empty">没读到：${esc(bo.reason||'数层还没有这一段')}</div>`;
   h+=`</div>`;
 
   /* (c) 节律按类型画：次数型＝圆点、上限/至少型＝量规、每天型＝7 格、月季型＝一个记号。
@@ -1542,18 +1629,6 @@ function renderWeek(){
   h+=legendHTML();
   h+=`</div>`;
 
-  h+=`<div class="sec">判 读</div><div class="list">`;
-  const V=Array.isArray(W.verdicts)?W.verdicts:[];
-  if(!V.length){
-    const hb=W.heartbeats&&W.heartbeats.weekly_review;
-    h+=`<div class="empty">本周判读未到${hb?'（心跳 '+new Date(hb).toTimeString().slice(0,5)+'）':'（还没有心跳）'}</div>`;
-  }else for(const v of V){
-    const e=v.evidence&&typeof v.evidence==='object'?Object.keys(v.evidence).map(k=>k+' '+v.evidence[k]).join(' · '):'';
-    h+=`<div class="vd">${v.kind==='proposal'?'改判建议：':''}${esc(v.text)}`
-      +(v.kind==='proposal'?`<i class="st ${esc(v.status)}">${esc(VD_ST[v.status]||v.status)}</i>`:'')
-      +(e?`<div class="ev">${esc(e)}</div>`:'')+`</div>`;
-  }
-  h+=`</div>`;
   el.innerHTML=h; enter(el,'week');
 }
 function renderAll(){
